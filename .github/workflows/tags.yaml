@@ -5,7 +5,7 @@ on:
 name: Create release
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -25,14 +25,20 @@ jobs:
         with:
           version: v3.9.4
 
-      - name: create helm chart package
+      - name: login to ghcr.io
+        run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io/rpardini --username ${{ github.actor }} --password-stdin
+      
+      - name: create helm chart package for stack
         run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/stack --dependency-update --version ${ver:1}
      
-      - name: login to ghcr.io
-        run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io/tinkerbell --username ${{ github.actor }} --password-stdin
- 
-      - name: publish chart to ghcr.io
-        run: ver=${GITHUB_REF_NAME}; helm push stack-${ver:1}.tgz oci://ghcr.io/tinkerbell/charts
+      - name: create helm chart package for nibs
+        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/nibs --dependency-update --version ${ver:1}
+     
+      - name: publish stack chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push stack-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish nibs chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push nibs-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
 
       - name: Create Release
         id: create_release
