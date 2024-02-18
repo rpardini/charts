@@ -25,14 +25,26 @@ jobs:
         with:
           version: v3.9.4
 
-      - name: create helm chart package
-        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/stack --dependency-update --version ${ver:1}
-     
       - name: login to ghcr.io
-        run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io/tinkerbell --username ${{ github.actor }} --password-stdin
- 
-      - name: publish chart to ghcr.io
-        run: ver=${GITHUB_REF_NAME}; helm push stack-${ver:1}.tgz oci://ghcr.io/tinkerbell/charts
+        run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io/rpardini --username ${{ github.actor }} --password-stdin
+
+      - name: create helm chart package for stack
+        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/stack --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for showcase
+        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/showcase --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for suite
+        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/suite --dependency-update --version ${ver:1}
+
+      - name: publish stack chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push stack-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish showcase chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push showcase-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish suite chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push suite-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
 
       - name: Create Release
         id: create_release
