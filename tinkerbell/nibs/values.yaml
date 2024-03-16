@@ -13,7 +13,7 @@ provision:
   
   # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions
   hook:
-    "default-hook-x86_86":
+    "default-hook-amd64":
       arch: "x86_64"
       downloadURL: "https://..../"
       kernel: "vmlinuz"
@@ -38,7 +38,7 @@ provision:
       arch: "aarch64"
       downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-arm64.img"
       image: "jammy-server-cloudimg-arm64.img"
-    "ubuntu-jammy-cloud-x86_64":
+    "ubuntu-jammy-cloud-amd64":
       enabled: true
       arch: "x86_64"
       downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-amd64.img"
