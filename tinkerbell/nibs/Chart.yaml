@@ -1,0 +1,11 @@
+apiVersion: v2
+name: nibs
+description: A batteries-included Helm chart for Tinkerbell on a single node cluster
+type: application
+version: "0.4.3-rpardini6"
+appVersion: "0.4.3"
+
+dependencies:
+  - name: stack
+    version: "0.4.3-rpardini6"
+    repository: "file://../stack"
