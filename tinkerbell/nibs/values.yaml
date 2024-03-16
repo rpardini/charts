@@ -2,9 +2,9 @@ stack:
   stack:
     loadBalancerIP: 192.168.66.75 # MUST be set
   hegel:
-    trustedProxies: "0.0.0.0/0" # Trust _all_ proxies, insecure
+    trustedProxies: ["0.0.0.0/0"] # Trust _all_ proxies, insecure
   smee:
-    trustedProxies: "0.0.0.0/0" # Trust _all_ proxies, insecure
+    trustedProxies: ["0.0.0.0/0"] # Trust _all_ proxies, insecure
     publicIP: 192.168.66.75 # Must be set
 
 
