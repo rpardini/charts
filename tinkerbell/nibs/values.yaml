@@ -1,0 +1,76 @@
+stack:
+  stack:
+    loadBalancerIP: 192.168.66.75 # MUST be set
+  hegel:
+    trustedProxies: "0.0.0.0/0" # Trust _all_ proxies, insecure
+  smee:
+    trustedProxies: "0.0.0.0/0" # Trust _all_ proxies, insecure
+    publicIP: 192.168.66.75 # Must be set
+
+
+# Generates download jobs and configs for easy show-off'ing of Tinkerbell on diverse hardware
+provision:
+  
+  # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions
+  hook:
+    "default-hook-x86_86":
+      arch: "x86_64"
+      downloadURL: "https://..../"
+      kernel: "vmlinuz"
+      initrd: "initrd.img"
+    
+    "default-hook-aarch64":
+      arch: "aarch64"
+      downloadURL: "https://..../"
+      kernel: "vmlinuz"
+      initrd: "initrd.img"
+
+    "armbian-meson64-current": # Use an Armbian meson64 current kernel, usually an LTS kernel like 6.6.y
+      arch: "aarch64"
+      downloadURL: "https://..../"
+      kernel: "vmlinuz"
+      initrd: "initrd.img"
+  
+  # Define deployment images; we've a few examples using Ubuntu and Armbian
+  images:
+    "ubuntu-jammy-cloud-arm64":
+      enabled: true
+      arch: "aarch64"
+      downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-arm64.img"
+      image: "jammy-server-cloudimg-arm64.img"
+    "ubuntu-jammy-cloud-x86_64":
+      enabled: true
+      arch: "x86_64"
+      downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-amd64.img"
+      image: "jammy-server-cloudimg-amd64.img"
+    "armbian-bookworm-meson64-current-cloud":
+      enabled: false
+      arch: "aarch64"
+      downloadURL: "https://..../"
+      image: "armbian-bookworm-meson64.img"
+
+# Generates CRs triplets with Hardware, Workflow, and Template, using by-id references to the hook and images above.
+
+hardware:
+  common:
+    ipv4:
+      gateway: "192.168.66.1" # Must be set, otherwise no internet access; can be overriden per-device
+      netmask: "255.255.255.0"
+      dns: [ "192.168.66.1" ]
+
+  devices: # One entry for each machine
+
+    "vm01":
+      arch: aarch64
+      uefi: true
+      mac: "52:54:00:01:03:01"
+      disks: [ "/dev/vdb" ]
+      ipv4:
+        address: "192.168.66.244"
+      hookRef: "default-hook-aarch64" # defined above
+      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      kernelConsoles: ["ttyAMA0", "ttyS0"] # @TODO
+      extraKernelCommandLine: "console=ttyAML0 console=ttyS1"
+
+
+

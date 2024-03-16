@@ -1,0 +1,171 @@
+{{- range $deviceId, $dev := .Values.hardware.devices }}
+
+{{- $common := $.Values.hardware.common -}}
+{{- $mergedDevice := merge $dev $common }}
+
+{{- $hookObj := index $.Values.provision.hook $mergedDevice.hookRef }}
+{{- if not $hookObj }}{{- fail "hookRef not found"  }}{{- end }}
+
+{{- $imageObj := index $.Values.provision.images $mergedDevice.imageRef }}
+{{- if not $imageObj }}{{- fail "imageRef not found"  }}{{- end }}
+
+---
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Hardware
+metadata:
+  name: "{{ $deviceId }}-hardware"
+spec:
+  disks:
+    {{- range $mergedDevice.disks }}
+    - device: {{ . | quote }}
+    {{- end }}
+  metadata:
+    facility:
+      facility_code: sandbox
+    instance:
+      hostname: "{{ $deviceId }}"
+      id: "{{ $dev.mac }}"
+      operating_system:
+        distro: "ubuntu" # @TODO
+        os_slug: "ubuntu_20_04"
+        version: "20.04"
+  interfaces:
+    - dhcp:
+        arch: "{{ $dev.arch }}"
+        hostname: "{{ $deviceId }}"
+        ip:
+          address: "{{ $dev.ipv4.address }}"
+          netmask: "{{ $dev.ipv4.netmask }}"
+          gateway: "{{ $dev.ipv4.gateway }}"
+        lease_time: 86400
+        mac: "{{ $dev.mac }}"
+        name_servers:
+          {{- range $mergedDevice.ipv4.dns }}
+          - {{ . | quote }}
+          {{- end }}
+        uefi: {{ $dev.uefi }}
+      netboot:
+        allowPXE: true
+        allowWorkflow: true
+        ipxe: # @TODO
+          contents: |
+            echo Showcase starting for {{$deviceId}}...
+            set arch {{ $dev.arch }}
+            set download-url http://{{ $.Values.stack.stack.loadBalancerIP }}:8080
+            kernel ${download-url}/vmlinuz-${arch} tink_worker_image=quay.io/tinkerbell/tink-worker:v0.10.0 \
+            facility= syslog_host={{ $.Values.stack.stack.loadBalancerIP }} grpc_authority={{ $.Values.stack.stack.loadBalancerIP }}:42113 tinkerbell_tls=false worker_id={{$dev.mac}} hw_addr={{$dev.mac}} \
+            modules=loop,squashfs,sd-mod,usb-storage intel_iommu=on iommu=pt initrd=initramfs-${arch} {{ $dev.extraKernelCommandLine }}
+            initrd ${download-url}/initramfs-${arch}
+            boot
+---
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Template
+metadata:
+  name: "{{ $deviceId }}-template"
+spec:
+  data: |
+    version: "0.1"
+    name: "{{ $deviceId }}-template"
+    global_timeout: 1800
+    tasks:
+      - name: "os-installation"
+        worker: "{{ "{{" }}.device_1}}"
+        volumes:
+          - /dev:/dev
+          - /dev/console:/dev/console
+          - /lib/firmware:/lib/firmware:ro
+        actions:
+          - name: "stream-ubuntu-image"
+            image: quay.io/tinkerbell-actions/image2disk:v1.0.0
+            timeout: 600
+            environment:
+              DEST_DISK: {{ "{{" }} index .Hardware.Disks 0 }}
+              IMG_URL: "http://{{ $.Values.stack.stack.loadBalancerIP }}:8080/jammy-server-cloudimg-amd64.raw.gz"
+              COMPRESSED: true
+          - name: "grow-partition"
+            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            timeout: 90
+            environment:
+              BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
+              FS_TYPE: ext4
+              CHROOT: y
+              DEFAULT_INTERPRETER: "/bin/sh -c"
+              CMD_LINE: "growpart {{ "{{" }} index .Hardware.Disks 0 }} 1 && resize2fs {{ "{{" }} index .Hardware.Disks 0 }}1"
+          - name: "install-openssl"
+            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            timeout: 90
+            environment:
+              BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
+              FS_TYPE: ext4
+              CHROOT: y
+              DEFAULT_INTERPRETER: "/bin/sh -c"
+              CMD_LINE: "apt -y update && apt -y install openssl"
+          - name: "create-user"
+            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            timeout: 90
+            environment:
+              BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
+              FS_TYPE: ext4
+              CHROOT: y
+              DEFAULT_INTERPRETER: "/bin/sh -c"
+              CMD_LINE: "useradd -p $(openssl passwd -1 tink) -s /bin/bash -d /home/tink/ -m -G sudo tink"
+          - name: "enable-ssh"
+            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            timeout: 90
+            environment:
+              BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
+              FS_TYPE: ext4
+              CHROOT: y
+              DEFAULT_INTERPRETER: "/bin/sh -c"
+              CMD_LINE: "ssh-keygen -A; systemctl enable ssh.service; echo 'PasswordAuthentication yes' > /etc/ssh/sshd_config.d/60-cloudimg-settings.conf"
+          - name: "disable-apparmor"
+            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            timeout: 90
+            environment:
+              BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
+              FS_TYPE: ext4
+              CHROOT: y
+              DEFAULT_INTERPRETER: "/bin/sh -c"
+              CMD_LINE: "systemctl disable apparmor; systemctl disable snapd"
+          - name: "write-netplan"
+            image: quay.io/tinkerbell-actions/writefile:v1.0.0
+            timeout: 90
+            environment:
+              DEST_DISK: {{ "{{" }} index .Hardware.Disks 0 }}1
+              FS_TYPE: ext4
+              DEST_PATH: /etc/netplan/config.yaml
+              CONTENTS: |
+                network:
+                  version: 2
+                  renderer: networkd
+                  ethernets:
+                    id0:
+                      match:
+                        name: en*
+                      dhcp4: true
+              UID: 0
+              GID: 0
+              MODE: 0644
+              DIRMODE: 0755
+          - name: "kexec"
+            image: ghcr.io/jacobweinstock/waitdaemon:latest
+            timeout: 90
+            pid: host
+            environment:
+              BLOCK_DEVICE: {{ "{{" }} formatPartition ( index .Hardware.Disks 0 ) 1 }}
+              FS_TYPE: ext4
+              IMAGE: quay.io/tinkerbell-actions/kexec:v1.0.0
+              WAIT_SECONDS: 10
+            volumes:
+              - /var/run/docker.sock:/var/run/docker.sock
+---
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Workflow
+metadata:
+  name: "{{ $deviceId }}-workflow"
+spec:
+  templateRef: "{{ $deviceId }}-template"
+  hardwareRef: "{{ $deviceId }}-hardware"
+  hardwareMap:
+    device_1: "{{ $dev.mac }}"
+{{- end }}
