@@ -1,14 +1,10 @@
 {{- range $deviceId, $dev := .Values.hardware.devices }}
-
 {{- $common := $.Values.hardware.common -}}
 {{- $mergedDevice := merge $dev $common }}
-
 {{- $hookObj := index $.Values.provision.hook $mergedDevice.hookRef }}
 {{- if not $hookObj }}{{- fail "hookRef not found"  }}{{- end }}
-
 {{- $imageObj := index $.Values.provision.images $mergedDevice.imageRef }}
 {{- if not $imageObj }}{{- fail "imageRef not found"  }}{{- end }}
-
 ---
 apiVersion: "tinkerbell.org/v1alpha1"
 kind: Hardware
@@ -49,13 +45,14 @@ spec:
         allowWorkflow: true
         ipxe: # @TODO
           contents: |
-            echo Showcase starting for {{$deviceId}}...
-            set arch {{ $dev.arch }}
+            echo Showcase starting for {{$deviceId}} with hook {{$mergedDevice.hookRef}} and image {{$mergedDevice.imageRef}}...
             set download-url http://{{ $.Values.stack.stack.loadBalancerIP }}:8080
-            kernel ${download-url}/vmlinuz-${arch} tink_worker_image=quay.io/tinkerbell/tink-worker:v0.10.0 \
-            facility= syslog_host={{ $.Values.stack.stack.loadBalancerIP }} grpc_authority={{ $.Values.stack.stack.loadBalancerIP }}:42113 tinkerbell_tls=false worker_id={{$dev.mac}} hw_addr={{$dev.mac}} \
-            modules=loop,squashfs,sd-mod,usb-storage intel_iommu=on iommu=pt initrd=initramfs-${arch} {{ $dev.extraKernelCommandLine }}
-            initrd ${download-url}/initramfs-${arch}
+            set kernel-params tink_worker_image=quay.io/tinkerbell/tink-worker:v0.10.0 facility= syslog_host={{ $.Values.stack.stack.loadBalancerIP }} grpc_authority={{ $.Values.stack.stack.loadBalancerIP }}:42113 tinkerbell_tls=false worker_id={{$dev.mac}} hw_addr={{$dev.mac}} modules=loop,squashfs,sd-mod,usb-storage intel_iommu=on iommu=pt initrd={{ $hookObj.initrd }} {{ $dev.extraKernelCommandLine }}
+            echo Kernel image: ${download-url}/{{ $hookObj.kernel }}
+            echo Kernel initrd: ${download-url}/{{ $hookObj.initrd }}
+            echo Kernel cmdline: ${kernel-params}
+            kernel ${download-url}/{{ $hookObj.kernel }} ${kernel-params}
+            initrd ${download-url}/{{ $hookObj.initrd }}
             boot
 ---
 apiVersion: "tinkerbell.org/v1alpha1"
@@ -80,7 +77,7 @@ spec:
             timeout: 600
             environment:
               DEST_DISK: {{ "{{" }} index .Hardware.Disks 0 }}
-              IMG_URL: "http://{{ $.Values.stack.stack.loadBalancerIP }}:8080/jammy-server-cloudimg-amd64.raw.gz"
+              IMG_URL: "http://{{ $.Values.stack.stack.loadBalancerIP }}:8080/{{ $imageObj.image }}"
               COMPRESSED: true
           - name: "grow-partition"
             image: quay.io/tinkerbell-actions/cexec:v1.0.0

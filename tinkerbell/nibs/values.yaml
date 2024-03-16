@@ -16,14 +16,14 @@ provision:
     "default-hook-amd64":
       arch: "x86_64"
       downloadURL: "https://..../"
-      kernel: "vmlinuz"
-      initrd: "initrd.img"
+      kernel: "vmlinuz-x86_64"
+      initrd: "initramfs-x86_64"
     
     "default-hook-aarch64":
       arch: "aarch64"
       downloadURL: "https://..../"
-      kernel: "vmlinuz"
-      initrd: "initrd.img"
+      kernel: "vmlinuz-aarch64"
+      initrd: "initramfs-aarch64"
 
     "armbian-meson64-current": # Use an Armbian meson64 current kernel, usually an LTS kernel like 6.6.y
       arch: "aarch64"
@@ -37,12 +37,12 @@ provision:
       enabled: true
       arch: "aarch64"
       downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-arm64.img"
-      image: "jammy-server-cloudimg-arm64.img"
+      image: "jammy-server-cloudimg-arm64.raw.gz"
     "ubuntu-jammy-cloud-amd64":
       enabled: true
       arch: "x86_64"
       downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-amd64.img"
-      image: "jammy-server-cloudimg-amd64.img"
+      image: "jammy-server-cloudimg-amd64.raw.gz"
     "armbian-bookworm-meson64-current-cloud":
       enabled: false
       arch: "aarch64"
@@ -53,6 +53,7 @@ provision:
 
 hardware:
   common:
+    uefi: true
     ipv4:
       gateway: "192.168.66.1" # Must be set, otherwise no internet access; can be overriden per-device
       netmask: "255.255.255.0"
@@ -62,15 +63,20 @@ hardware:
 
     "vm01":
       arch: aarch64
-      uefi: true
       mac: "52:54:00:01:03:01"
       disks: [ "/dev/vdb" ]
       ipv4:
         address: "192.168.66.244"
       hookRef: "default-hook-aarch64" # defined above
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
-      kernelConsoles: ["ttyAMA0", "ttyS0"] # @TODO
       extraKernelCommandLine: "console=ttyAML0 console=ttyS1"
 
-
-
+    "vm02":
+      arch: x86_64
+      mac: "52:54:00:01:03:02"
+      disks: [ "/dev/vdb" ]
+      ipv4:
+        address: "192.168.66.245"
+      hookRef: "default-hook-amd64" # defined above
+      imageRef: "ubuntu-jammy-cloud-amd64" # defined above
+      extraKernelCommandLine: "console=ttyS0"
