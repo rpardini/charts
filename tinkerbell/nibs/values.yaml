@@ -25,6 +25,12 @@ provision:
       kernel: "vmlinuz-aarch64"
       initrd: "initramfs-aarch64"
 
+    "new-hook-aarch64":
+      arch: "aarch64"
+      downloadURL: null # @TODO put there by scp'ing for now
+      kernel: "vmlinuz-aarch64-new"
+      initrd: "initramfs-aarch64-new"
+
     "armbian-meson64-current": # Use an Armbian meson64 current kernel, usually an LTS kernel like 6.6.y
       arch: "aarch64"
       downloadURL: "https://..../"
@@ -69,7 +75,17 @@ hardware:
         address: "192.168.66.244"
       hookRef: "default-hook-aarch64" # defined above
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
-      extraKernelCommandLine: "console=ttyAML0 console=ttyS1"
+      extraKernelCommandLine: "console=ttyAMA0"
+
+    "vm03":
+      arch: aarch64
+      mac: "52:54:00:01:03:03"
+      disks: [ "/dev/vdb" ]
+      ipv4:
+        address: "192.168.66.246"
+      hookRef: "new-hook-aarch64" # defined above
+      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      extraKernelCommandLine: "console=ttyAMA0"
 
     "vm02":
       arch: x86_64
