@@ -10,6 +10,9 @@ apiVersion: "tinkerbell.org/v1alpha1"
 kind: Hardware
 metadata:
   name: "{{ $deviceId }}-hardware"
+  labels:
+    "app.kubernetes.io/instance": "{{ $.Release.Name }}"
+    "app.kubernetes.io/part-of": "nibs"
 spec:
   disks:
     {{- range $mergedDevice.disks }}
@@ -59,6 +62,9 @@ apiVersion: "tinkerbell.org/v1alpha1"
 kind: Template
 metadata:
   name: "{{ $deviceId }}-template"
+  labels:
+    "app.kubernetes.io/instance": "{{ $.Release.Name }}"
+    "app.kubernetes.io/part-of": "nibs"
 spec:
   data: |
     version: "0.1"
@@ -160,6 +166,9 @@ apiVersion: "tinkerbell.org/v1alpha1"
 kind: Workflow
 metadata:
   name: "{{ $deviceId }}-workflow"
+  labels:
+    "app.kubernetes.io/instance": "{{ $.Release.Name }}"
+    "app.kubernetes.io/part-of": "nibs"
 spec:
   templateRef: "{{ $deviceId }}-template"
   hardwareRef: "{{ $deviceId }}-hardware"
