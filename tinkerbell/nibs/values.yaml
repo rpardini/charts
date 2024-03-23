@@ -93,13 +93,31 @@ provision:
       arch: "aarch64"
       downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-arm64.img"
       image: "jammy-server-cloudimg-arm64.raw.gz"
+      conversion: "qemu-to-raw-gzip"
+      doGrowPart: true
+      doUserAndSshSetup: true
       rootfsPartitionNumber: "1" # must be a string
+
     "ubuntu-jammy-cloud-amd64":
       enabled: true
       arch: "x86_64"
       downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-amd64.img"
+      conversion: "qemu-to-raw-gzip"
       image: "jammy-server-cloudimg-amd64.raw.gz"
+      doGrowPart: true
+      doUserAndSshSetup: true
       rootfsPartitionNumber: "1"
+      
+    "armbian-rpardini-rockpro64-edge-uboot":
+      enabled: true
+      arch: "aarch64"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.16-armsurvivors-25/Armbian-unofficial_24.03.16-armsurvivors-25_Rockpro64_bookworm_edge_6.7.10.img.xz"
+      image: "Armbian-unofficial_24.03.16-armsurvivors-25_Rockpro64_bookworm_edge_6.7.10.img.xz"
+      conversion: "none"
+      doGrowPart: false # Armbian does it itself when booted
+      doUserAndSshSetup: false # Armbian does it itself when booted
+      rootfsPartitionNumber: "1"
+      
     "armbian-bookworm-meson64-current-cloud":
       enabled: false
       arch: "aarch64"
@@ -168,6 +186,6 @@ hardware:
       ipv4:
         address: "192.168.66.247"
       hookRef: "armbian-rockchip64-edge" # defined above
-      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      imageRef: "armbian-rpardini-rockpro64-edge-uboot" # defined above
       extraKernelCommandLine: "console=ttyS2,1500000"
       

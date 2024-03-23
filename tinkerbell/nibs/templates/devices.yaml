@@ -104,6 +104,8 @@ spec:
               DEST_DISK: "{{ $rootDiskDevice }}"
               IMG_URL: "http://{{ $.Values.stack.stack.loadBalancerIP }}:8080/{{ $imageObj.image }}"
               COMPRESSED: true
+
+          {{- if $imageObj.doGrowPart }}
           - name: "grow-partition-{{ $deviceId }}"
             image: {{ $.Values.actions.repository }}/cexec:{{ $.Values.actions.version }}
             timeout: 90
@@ -113,6 +115,9 @@ spec:
               CHROOT: y
               DEFAULT_INTERPRETER: "/bin/sh -c"
               CMD_LINE: "growpart {{ $rootDiskDevice }} {{$rootDiskRootfsPartitionNumber}} && resize2fs {{$rootDiskRootfsPartitionDevice}}"
+          {{- end }}
+
+          {{- if $imageObj.doUserAndSshSetup }}
           - name: "install-openssl-{{ $deviceId }}"
             image: {{ $.Values.actions.repository }}/cexec:{{ $.Values.actions.version }}
             timeout: 90
@@ -169,6 +174,7 @@ spec:
               GID: 0
               MODE: 0644
               DIRMODE: 0755
+          {{- end }}
 
           {{- if eq $hookObj.bootMode "kexec" }}
           - name: "kexec-{{ $deviceId }}"

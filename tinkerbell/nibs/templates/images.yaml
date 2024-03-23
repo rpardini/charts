@@ -11,22 +11,41 @@ metadata:
 data:
   entrypoint.sh: |-
     #!/usr/bin/env bash
+    {{- if eq "qemu-to-raw-gzip" $image.conversion }}
     # This script is designed to download a cloud image file (.img) and then convert it to a .raw.gz file.
     # This is purpose built so non-raw cloud image files can be used with the "image2disk" action.
     # See https://artifacthub.io/packages/tbaction/tinkerbell-community/image2disk.
     set -euxo pipefail
     if ! which pigz qemu-img &> /dev/null; then
-    	apk add --update pigz qemu-img
+        apk add --update pigz qemu-img
     fi
     image_url=$1
     file=$2/${image_url##*/}
     file=${file%.*}.raw.gz
     if [[ ! -f "$file" ]]; then
-    	wget "$image_url" -O image.img
-    	qemu-img convert -O raw image.img image.raw
-    	pigz < image.raw > "$file"
-    	rm -f image.img image.raw
+        wget "$image_url" -O image.img
+        qemu-img convert -O raw image.img image.raw
+        pigz < image.raw > "$file"
+        rm -f image.img image.raw
+    else
+        echo "File $file already exists, skipping download and conversion."
     fi
+    {{- end }}
+    
+    {{- if eq "none" $image.conversion }}
+    # No conversion, just a simple download; image must be in raw format, possibly compressed.
+    image_url="{{ $image.downloadURL }}"
+    file="/output/{{ $image.image }}"
+    if [[ ! -f "$file" ]]; then
+      echo "Image file $file does not exist. Downloading...."
+      wget "$image_url" -O "${file}.tmp"
+      mv -v "${file}.tmp" "$file"
+      echo "Done downloading image."  
+    else
+      echo "Image file $file already exists. Skipping download."
+    fi
+    
+    {{- end }}
     
 ---
 apiVersion: batch/v1
