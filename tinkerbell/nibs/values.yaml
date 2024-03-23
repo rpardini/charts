@@ -205,7 +205,7 @@ hardware:
       rootDisk: "/dev/disk/by-id/wwn-0x3001237923792379"
       ipv4:
         address: "192.168.66.248"
-      hookRef: "armbian-bcm2711-current" # works, as long as UEFI is set with ACPI+DTB and no 3gb limit.
+      hookRef: "armbian-bcm2711-current" # works, as long as UEFI is set with ACPI+DTB and no 3gb limit. Use edk2 from https://github.com/pftf/RPi4
       #hookRef: "armbian-uefi-arm64-edge" # no PHY on the UEFI kernel, so no network?
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
-      extraKernelCommandLine: "console=tty1 console=ttyAMA0,115200 loglevel=7"
+      extraKernelCommandLine: "console=tty1 console=ttyAMA0,115200 loglevel=7" # Last console defined "wins", thus use tty1 last if no serial console
