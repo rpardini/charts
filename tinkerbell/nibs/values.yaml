@@ -6,7 +6,13 @@ stack:
   smee:
     trustedProxies: [ "0.0.0.0/0" ] # Trust _all_ proxies, insecure
     publicIP: 192.168.66.75 # Must be set
+    image: quay.io/tinkerbellrpardini/smee:latest-rpardini # custom build with updated ipxedust and arm64 NAPNULL for u-boot's PXE-via-EFI
+    imagePullPolicy: Always # I re-push it there sometimes
 
+
+actions:
+  repository: "quay.io/tinkerbellrpardini/actions"
+  version: "latest"
 
 # Generates download jobs and configs for easy show-off'ing of Tinkerbell on diverse hardware
 provision:
@@ -18,24 +24,52 @@ provision:
       downloadURL: null  # Matches the default hook download in stack chart
       kernel: "vmlinuz-x86_64"
       initrd: "initramfs-x86_64"
+      kernelCommandLine: ""
+      bootMode: kexec
+
+    "armbian-uefi-current-amd64":
+      arch: "x86_64"
+      downloadURL: null # @TODO put there by scp'ing for now
+      kernel: "vmlinuz-armbian-uefi-current-amd64"
+      initrd: "initramfs-armbian-uefi-current-amd64"
+      kernelCommandLine: "intel_iommu=on iommu=pt"
+      bootMode: kexec
+    
     
     "default-hook-aarch64":
       arch: "aarch64"
       downloadURL: null # Matches the default hook download in stack chart
       kernel: "vmlinuz-aarch64"
       initrd: "initramfs-aarch64"
+      kernelCommandLine: ""
+      bootMode: reboot # kexec is no-go here, kernel problem? (persists after enabling CONFIG_KEXEC & trying to fix TB action)
 
-    "new-hook-aarch64":
+    "armbian-uefi-current-arm64":
       arch: "aarch64"
       downloadURL: null # @TODO put there by scp'ing for now
-      kernel: "vmlinuz-aarch64-new"
-      initrd: "initramfs-aarch64-new"
-
-    "armbian-meson64-current": # Use an Armbian meson64 current kernel, usually an LTS kernel like 6.6.y
+      kernel: "vmlinuz-armbian-uefi-current-arm64"
+      initrd: "initramfs-armbian-uefi-current-arm64"
+      kernelCommandLine: ""
+      bootMode: reboot # still no go with kexec -- this is a TB action problem for sure, not kernel problem
+    
+    "armbian-meson64-current":
       arch: "aarch64"
-      downloadURL: "https://..../"
-      kernel: "vmlinuz"
-      initrd: "initrd.img"
+      downloadURL: null # @TODO put there by scp'ing for now
+      kernel: "vmlinuz-armbian-meson64-current"
+      initrd: "initramfs-armbian-meson64-current"
+      kernelCommandLine: "acpi=off efi=noruntime"
+      bootMode: reboot
+  
+    "armbian-meson64-edge":
+      arch: "aarch64"
+      downloadURL: null # @TODO put there by scp'ing for now
+      kernel: "vmlinuz-armbian-meson64-edge"
+      initrd: "initramfs-armbian-meson64-edge"
+      kernelCommandLine: "acpi=off efi=noruntime"
+      bootMode: reboot
+  
+  
+  
   
   # Define deployment images; we've a few examples using Ubuntu and Armbian
   images:
@@ -73,7 +107,7 @@ hardware:
       disks: [ "/dev/vdb" ]
       ipv4:
         address: "192.168.66.244"
-      hookRef: "default-hook-aarch64" # defined above
+      hookRef: "armbian-uefi-current-arm64" # "default-hook-aarch64" # defined above
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
       extraKernelCommandLine: "console=ttyAMA0"
 
@@ -83,7 +117,8 @@ hardware:
       disks: [ "/dev/vdb" ]
       ipv4:
         address: "192.168.66.246"
-      hookRef: "new-hook-aarch64" # defined above
+      #hookRef: "new-hook-aarch64" # defined above
+      hookRef: "armbian-uefi-current-arm64" # "default-hook-aarch64" # defined above
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
       extraKernelCommandLine: "console=ttyAMA0"
 
@@ -93,6 +128,27 @@ hardware:
       disks: [ "/dev/vdb" ]
       ipv4:
         address: "192.168.66.245"
-      hookRef: "default-hook-amd64" # defined above
+      hookRef: "armbian-uefi-current-amd64" # "default-hook-amd64" # defined above
       imageRef: "ubuntu-jammy-cloud-amd64" # defined above
       extraKernelCommandLine: "console=ttyS0"
+    
+    "vim3l":
+      arch: aarch64
+      mac: "c8:63:14:71:2a:6d"
+      disks: [ "/dev/mmcblk0" ]
+      ipv4:
+        address: "192.168.66.246"
+      hookRef: "armbian-meson64-edge" # "armbian-uefi-current-arm64" # "default-hook-aarch64" #  # "armbian-meson64-current" #  # defined above
+      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      extraKernelCommandLine: "console=ttyAML0,115200"
+      
+      #"vim3l2":
+      #  arch: aarch64
+      #  mac: "c8:63:14:71:2a:6d"
+      #  disks: [ "/dev/mmcblk0" ]
+      #  ipv4:
+      #    address: "192.168.66.246"
+      #  hookRef: "default-hook-aarch64" # defined above
+      #  imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      #  extraKernelCommandLine: "console=ttyAMA0"
+      

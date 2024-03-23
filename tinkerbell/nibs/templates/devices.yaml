@@ -50,7 +50,7 @@ spec:
           contents: |
             echo Showcase starting for {{$deviceId}} with hook {{$mergedDevice.hookRef}} and image {{$mergedDevice.imageRef}}...
             set download-url http://{{ $.Values.stack.stack.loadBalancerIP }}:8080
-            set kernel-params tink_worker_image=quay.io/tinkerbell/tink-worker:v0.10.0 facility= syslog_host={{ $.Values.stack.stack.loadBalancerIP }} grpc_authority={{ $.Values.stack.stack.loadBalancerIP }}:42113 tinkerbell_tls=false worker_id={{$dev.mac}} hw_addr={{$dev.mac}} modules=loop,squashfs,sd-mod,usb-storage intel_iommu=on iommu=pt initrd={{ $hookObj.initrd }} {{ $dev.extraKernelCommandLine }}
+            set kernel-params tink_worker_image=quay.io/tinkerbell/tink-worker:latest facility= syslog_host={{ $.Values.stack.stack.loadBalancerIP }} grpc_authority={{ $.Values.stack.stack.loadBalancerIP }}:42113 tinkerbell_tls=false worker_id={{$dev.mac}} hw_addr={{$dev.mac}} modules=loop,squashfs,sd-mod,usb-storage initrd={{ $hookObj.initrd }} {{$hookObj.kernelCommandLine}} {{ $dev.extraKernelCommandLine }}
             echo Kernel image: ${download-url}/{{ $hookObj.kernel }}
             echo Kernel initrd: ${download-url}/{{ $hookObj.initrd }}
             echo Kernel cmdline: ${kernel-params}
@@ -77,16 +77,18 @@ spec:
           - /dev:/dev
           - /dev/console:/dev/console
           - /lib/firmware:/lib/firmware:ro
+
         actions:
           - name: "stream-ubuntu-image"
-            image: quay.io/tinkerbell-actions/image2disk:v1.0.0
+            #image: quay.io/tinkerbell-actions/image2disk:v1.0.0
+            image: {{ $.Values.actions.repository }}/image2disk:{{ $.Values.actions.version }}
             timeout: 600
             environment:
               DEST_DISK: {{ "{{" }} index .Hardware.Disks 0 }}
               IMG_URL: "http://{{ $.Values.stack.stack.loadBalancerIP }}:8080/{{ $imageObj.image }}"
               COMPRESSED: true
           - name: "grow-partition"
-            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            image: {{ $.Values.actions.repository }}/cexec:{{ $.Values.actions.version }}
             timeout: 90
             environment:
               BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
@@ -95,7 +97,7 @@ spec:
               DEFAULT_INTERPRETER: "/bin/sh -c"
               CMD_LINE: "growpart {{ "{{" }} index .Hardware.Disks 0 }} 1 && resize2fs {{ "{{" }} index .Hardware.Disks 0 }}1"
           - name: "install-openssl"
-            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            image: {{ $.Values.actions.repository }}/cexec:{{ $.Values.actions.version }}
             timeout: 90
             environment:
               BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
@@ -104,7 +106,7 @@ spec:
               DEFAULT_INTERPRETER: "/bin/sh -c"
               CMD_LINE: "apt -y update && apt -y install openssl"
           - name: "create-user"
-            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            image: {{ $.Values.actions.repository }}/cexec:{{ $.Values.actions.version }}
             timeout: 90
             environment:
               BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
@@ -113,7 +115,7 @@ spec:
               DEFAULT_INTERPRETER: "/bin/sh -c"
               CMD_LINE: "useradd -p $(openssl passwd -1 tink) -s /bin/bash -d /home/tink/ -m -G sudo tink"
           - name: "enable-ssh"
-            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            image: {{ $.Values.actions.repository }}/cexec:{{ $.Values.actions.version }}
             timeout: 90
             environment:
               BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
@@ -122,7 +124,7 @@ spec:
               DEFAULT_INTERPRETER: "/bin/sh -c"
               CMD_LINE: "ssh-keygen -A; systemctl enable ssh.service; echo 'PasswordAuthentication yes' > /etc/ssh/sshd_config.d/60-cloudimg-settings.conf"
           - name: "disable-apparmor"
-            image: quay.io/tinkerbell-actions/cexec:v1.0.0
+            image: {{ $.Values.actions.repository }}/cexec:{{ $.Values.actions.version }}
             timeout: 90
             environment:
               BLOCK_DEVICE: {{ "{{" }} index .Hardware.Disks 0 }}1
@@ -131,7 +133,7 @@ spec:
               DEFAULT_INTERPRETER: "/bin/sh -c"
               CMD_LINE: "systemctl disable apparmor; systemctl disable snapd"
           - name: "write-netplan"
-            image: quay.io/tinkerbell-actions/writefile:v1.0.0
+            image: {{ $.Values.actions.repository }}/writefile:{{ $.Values.actions.version }}
             timeout: 90
             environment:
               DEST_DISK: {{ "{{" }} index .Hardware.Disks 0 }}1
@@ -150,6 +152,8 @@ spec:
               GID: 0
               MODE: 0644
               DIRMODE: 0755
+
+          {{- if eq $hookObj.bootMode "kexec" }}
           - name: "kexec"
             image: ghcr.io/jacobweinstock/waitdaemon:latest
             timeout: 90
@@ -157,10 +161,24 @@ spec:
             environment:
               BLOCK_DEVICE: {{ "{{" }} formatPartition ( index .Hardware.Disks 0 ) 1 }}
               FS_TYPE: ext4
-              IMAGE: quay.io/tinkerbell-actions/kexec:v1.0.0
-              WAIT_SECONDS: 10
+              IMAGE: {{ $.Values.actions.repository }}/kexec:{{ $.Values.actions.version }}
+              WAIT_SECONDS: 1
             volumes:
               - /var/run/docker.sock:/var/run/docker.sock
+          {{- end }}
+
+          {{- if eq $hookObj.bootMode "reboot" }}
+          - name: "reboot"
+            image: ghcr.io/jacobweinstock/waitdaemon:latest
+            timeout: 90
+            pid: host
+            command: ["reboot"]
+            environment:
+              IMAGE: alpine
+              WAIT_SECONDS: 1
+            volumes:
+              - /var/run/docker.sock:/var/run/docker.sock
+          {{- end }}
 ---
 apiVersion: "tinkerbell.org/v1alpha1"
 kind: Workflow
