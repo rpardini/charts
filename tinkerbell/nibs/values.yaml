@@ -24,6 +24,7 @@ provision:
   
   common:
     # Used together with downloadFile field in each hook; @TODO: can be overriden by using downloadURL field in each hook
+    # Check https://github.com/rpardini/tinkerbell-hook/releases/ for updates
     hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240322-2205/"
   
   # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions
@@ -82,6 +83,15 @@ provision:
       initrd: "initramfs-armbian-rockchip64-edge"
       kernelCommandLine: "" # "acpi=off efi=noruntime"
       bootMode: reboot
+    
+    "armbian-bcm2711-current":
+      enabled: true
+      arch: "aarch64"
+      downloadFile: "hook-armbian-bcm2711-current.tar.gz"
+      kernel: "vmlinuz-armbian-bcm2711-current"
+      initrd: "initramfs-armbian-bcm2711-current"
+      kernelCommandLine: "" # "acpi=off efi=noruntime"
+      bootMode: reboot
   
   
   
@@ -107,7 +117,7 @@ provision:
       doGrowPart: true
       doUserAndSshSetup: true
       rootfsPartitionNumber: "1"
-      
+    
     "armbian-rpardini-rockpro64-edge-uboot":
       enabled: true
       arch: "aarch64"
@@ -117,7 +127,7 @@ provision:
       doGrowPart: false # Armbian does it itself when booted
       doUserAndSshSetup: false # Armbian does it itself when booted
       rootfsPartitionNumber: "1"
-      
+    
     "armbian-bookworm-meson64-current-cloud":
       enabled: false
       arch: "aarch64"
@@ -188,4 +198,14 @@ hardware:
       hookRef: "armbian-rockchip64-edge" # defined above
       imageRef: "armbian-rpardini-rockpro64-edge-uboot" # defined above
       extraKernelCommandLine: "console=ttyS2,1500000"
-      
+    
+    "rpi4b":
+      arch: aarch64
+      mac: "dc:a6:32:ec:8b:49"
+      rootDisk: "/dev/disk/by-id/wwn-0x3001237923792379"
+      ipv4:
+        address: "192.168.66.248"
+      hookRef: "armbian-bcm2711-current" # works, as long as UEFI is set with ACPI+DTB and no 3gb limit.
+      #hookRef: "armbian-uefi-arm64-edge" # no PHY on the UEFI kernel, so no network?
+      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      extraKernelCommandLine: "console=tty1 console=ttyAMA0,115200 loglevel=7"
