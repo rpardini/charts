@@ -1,6 +1,10 @@
 stack:
   stack:
+    relay:
+      macvlanIntfNumber: "66" # string! So it does not keep changing every deploy
     loadBalancerIP: 192.168.66.75 # MUST be set
+    hook:
+      downloadEnabled: false # This chart does its own download jobs, but we count on stack chart's nginx to serve them
   hegel:
     trustedProxies: [ "0.0.0.0/0" ] # Trust _all_ proxies, insecure
   smee:
@@ -16,56 +20,67 @@ actions:
 
 # Generates download jobs and configs for easy show-off'ing of Tinkerbell on diverse hardware
 provision:
+  # @TODO: many simultaneous download jobs can drive an SD-card/low-bandwidth cluster to its knees. Consider a single download job for all
+  
+  common:
+    # Used together with downloadFile field in each hook; @TODO: can be overriden by using downloadURL field in each hook
+    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240322-2205/"
   
   # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions
   hook:
     "default-hook-amd64":
+      enabled: true
       arch: "x86_64"
-      downloadURL: null  # Matches the default hook download in stack chart
+      downloadFile: "hook-x86_64.tar.gz"
       kernel: "vmlinuz-x86_64"
       initrd: "initramfs-x86_64"
       kernelCommandLine: ""
       bootMode: kexec
 
-    "armbian-uefi-current-amd64":
-      arch: "x86_64"
-      downloadURL: null # @TODO put there by scp'ing for now
-      kernel: "vmlinuz-armbian-uefi-current-amd64"
-      initrd: "initramfs-armbian-uefi-current-amd64"
-      kernelCommandLine: "intel_iommu=on iommu=pt"
-      bootMode: kexec
-    
-    
     "default-hook-aarch64":
+      enabled: true
       arch: "aarch64"
-      downloadURL: null # Matches the default hook download in stack chart
+      downloadFile: "hook-aarch64.tar.gz"
       kernel: "vmlinuz-aarch64"
       initrd: "initramfs-aarch64"
       kernelCommandLine: ""
       bootMode: reboot # kexec is no-go here, kernel problem? (persists after enabling CONFIG_KEXEC & trying to fix TB action)
 
-    "armbian-uefi-current-arm64":
+    "armbian-uefi-x86-edge":
+      enabled: true
+      arch: "x86_64"
+      downloadFile: "hook-armbian-uefi-x86-edge.tar.gz"
+      kernel: "vmlinuz-armbian-uefi-x86-edge"
+      initrd: "initramfs-armbian-uefi-x86-edge"
+      kernelCommandLine: "intel_iommu=on iommu=pt"
+      bootMode: kexec
+    
+    
+    "armbian-uefi-arm64-edge":
+      enabled: true
       arch: "aarch64"
-      downloadURL: null # @TODO put there by scp'ing for now
-      kernel: "vmlinuz-armbian-uefi-current-arm64"
-      initrd: "initramfs-armbian-uefi-current-arm64"
+      downloadFile: "hook-armbian-uefi-arm64-edge.tar.gz"
+      kernel: "vmlinuz-armbian-uefi-arm64-edge"
+      initrd: "initramfs-armbian-uefi-arm64-edge"
       kernelCommandLine: ""
       bootMode: reboot # still no go with kexec -- this is a TB action problem for sure, not kernel problem
     
-    "armbian-meson64-current":
-      arch: "aarch64"
-      downloadURL: null # @TODO put there by scp'ing for now
-      kernel: "vmlinuz-armbian-meson64-current"
-      initrd: "initramfs-armbian-meson64-current"
-      kernelCommandLine: "acpi=off efi=noruntime"
-      bootMode: reboot
-  
     "armbian-meson64-edge":
+      enabled: true
       arch: "aarch64"
-      downloadURL: null # @TODO put there by scp'ing for now
+      downloadFile: "hook-armbian-meson64-edge.tar.gz"
       kernel: "vmlinuz-armbian-meson64-edge"
       initrd: "initramfs-armbian-meson64-edge"
       kernelCommandLine: "acpi=off efi=noruntime"
+      bootMode: reboot
+  
+    "armbian-rockchip64-edge":
+      enabled: true
+      arch: "aarch64"
+      downloadFile: "hook-armbian-rockchip64-edge.tar.gz"
+      kernel: "vmlinuz-armbian-rockchip64-edge"
+      initrd: "initramfs-armbian-rockchip64-edge"
+      kernelCommandLine: "" # "acpi=off efi=noruntime"
       bootMode: reboot
   
   
@@ -107,7 +122,7 @@ hardware:
       disks: [ "/dev/vdb" ]
       ipv4:
         address: "192.168.66.244"
-      hookRef: "armbian-uefi-current-arm64" # "default-hook-aarch64" # defined above
+      hookRef: "armbian-uefi-arm64-edge" # "default-hook-aarch64" # defined above
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
       extraKernelCommandLine: "console=ttyAMA0"
 
@@ -118,7 +133,7 @@ hardware:
       ipv4:
         address: "192.168.66.246"
       #hookRef: "new-hook-aarch64" # defined above
-      hookRef: "armbian-uefi-current-arm64" # "default-hook-aarch64" # defined above
+      hookRef: "armbian-uefi-arm64-edge" # "default-hook-aarch64" # defined above
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
       extraKernelCommandLine: "console=ttyAMA0"
 
@@ -128,7 +143,7 @@ hardware:
       disks: [ "/dev/vdb" ]
       ipv4:
         address: "192.168.66.245"
-      hookRef: "armbian-uefi-current-amd64" # "default-hook-amd64" # defined above
+      hookRef: "armbian-uefi-x86-edge" # "default-hook-amd64" # defined above
       imageRef: "ubuntu-jammy-cloud-amd64" # defined above
       extraKernelCommandLine: "console=ttyS0"
     
@@ -142,13 +157,14 @@ hardware:
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
       extraKernelCommandLine: "console=ttyAML0,115200"
       
-      #"vim3l2":
-      #  arch: aarch64
-      #  mac: "c8:63:14:71:2a:6d"
-      #  disks: [ "/dev/mmcblk0" ]
-      #  ipv4:
-      #    address: "192.168.66.246"
-      #  hookRef: "default-hook-aarch64" # defined above
-      #  imageRef: "ubuntu-jammy-cloud-arm64" # defined above
-      #  extraKernelCommandLine: "console=ttyAMA0"
+    "rockpro64":
+      arch: aarch64
+      mac: "2a:36:cb:a2:ae:b8"
+      # @TODO: /dev/disk/by-id/mmc-AJTD4R_0x0b05e84d doesn't work, since partition 1 is actually mmc-AJTD4R_0x0b05e84d-part1 not mmc-AJTD4R_0x0b05e84d1
+      disks: [ "/dev/mmcblk2" ] # mmcblk2 is the eMMC, mmcblk1 is the SD card
+      ipv4:
+        address: "192.168.66.247"
+      hookRef: "armbian-rockchip64-edge" # defined above
+      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      extraKernelCommandLine: "console=ttyS2,1500000"
       

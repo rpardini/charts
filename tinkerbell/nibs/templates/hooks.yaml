@@ -1,0 +1,63 @@
+{{- range $hookId, $hook := .Values.provision.hook }}
+{{ if $hook.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: download-hook-{{$hookId}}
+  namespace: {{ $.Release.Namespace }}
+data:
+  entrypoint.sh: |
+    #!/usr/bin/env bash
+    # This script is designed to download the Hook artifacts.
+    set -euxo pipefail
+    mkdir -p "/output/download_hook_{{$hookId}}"
+    cd "/output/download_hook_{{$hookId}}"
+    declare down_url="{{ $.Values.provision.common.hookDownloadBaseURL }}{{$hook.downloadFile}}"
+    declare down_file="/output/download_hook_{{$hookId}}/{{$hook.downloadFile}}"
+    wget -O "${down_file}.tmp" "${down_url}"
+    mv -v "${down_file}.tmp" "${down_file}"
+    mkdir -p "/output/download_hook_{{$hookId}}/extract"
+    cd "/output/download_hook_{{$hookId}}/extract"
+    tar -xvzf "${down_file}"
+    mv -v "/output/download_hook_{{$hookId}}/extract/"* /output/
+    rm -rf "/output/download_hook_{{$hookId}}"
+    ls -lah "/output/{{$hook.kernel}}"
+    ls -lah "/output/{{$hook.initrd}}"
+    
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: download-hook-{{$hookId}}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  backoffLimit: 50
+  template:
+    metadata:
+      labels:
+        app: download-hook
+    spec:
+      containers:
+        - name: download-hook-{{$hookId}}
+          image: {{ $.Values.stack.stack.hook.image }}
+          command: [ "/script/entrypoint.sh" ]
+          volumeMounts:
+            - mountPath: /output
+              name: hook-artifacts
+            - mountPath: /script
+              name: configmap-volume
+      restartPolicy: OnFailure
+      volumes:
+        - name: hook-artifacts
+          hostPath:
+            path: {{ $.Values.stack.stack.hook.downloadsDest }}
+            type: DirectoryOrCreate
+        - name: configmap-volume
+          configMap:
+            defaultMode: 0700
+            name: download-hook-{{$hookId}}
+
+
+{{- end }}
+{{- end }}
