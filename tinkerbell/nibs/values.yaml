@@ -12,7 +12,13 @@ stack:
     publicIP: 192.168.66.75 # Must be set
     image: quay.io/tinkerbellrpardini/smee:latest-rpardini # custom build with updated ipxedust and arm64 NAPNULL for u-boot's PXE-via-EFI
     imagePullPolicy: Always # I re-push it there sometimes
-
+  tink:
+    controller:
+      image: quay.io/tinkerbell/tink-controller:latest # make sure we work with latest version
+      imagePullPolicy: Always
+    server:
+      image: quay.io/tinkerbell/tink:latest # to make sure we work with the la
+      imagePullPolicy: Always
 
 actions:
   repository: "quay.io/tinkerbellrpardini/actions"
