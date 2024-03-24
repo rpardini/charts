@@ -178,6 +178,26 @@ hardware:
       imageRef: "ubuntu-jammy-cloud-amd64" # defined above
       extraKernelCommandLine: "console=ttyS0"
     
+    "run-qemu-x86":
+      arch: x86_64
+      mac: "11:22:33:44:55:66"
+      rootDisk: "/dev/sda"
+      ipv4:
+        address: "192.168.66.245"
+      hookRef: "armbian-uefi-x86-edge" # "default-hook-amd64" # defined above
+      imageRef: "ubuntu-jammy-cloud-amd64" # defined above
+      extraKernelCommandLine: "console=ttyS0"
+
+    "run-qemu-arm64":
+      arch: aarch64
+      mac: "11:22:33:44:55:77"
+      rootDisk: "/dev/sda"
+      ipv4:
+        address: "192.168.66.245"
+      hookRef: "armbian-uefi-arm64-edge" # "default-hook-aarch64" # defined above
+      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      extraKernelCommandLine: "console=ttyAMA0"
+    
     "vim3l":
       arch: aarch64
       mac: "c8:63:14:71:2a:6d"
