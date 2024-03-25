@@ -143,7 +143,7 @@ provision:
       conversion: "none"
       doGrowPart: false # Armbian does it itself when booted
       doUserAndSshSetup: false # Armbian does it itself when booted
-      rootfsPartitionNumber: "1"
+      rootfsPartitionNumber: "2" # rpi image has a fat32 boot partition (config.txt and such), and partition 2 is the real ext4 rootfs
     
     "armbian-bookworm-meson64-current-cloud":
       enabled: false
