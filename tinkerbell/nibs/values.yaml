@@ -32,6 +32,7 @@ provision:
     # Used together with downloadFile field in each hook; @TODO: can be overriden by using downloadURL field in each hook
     # Check https://github.com/rpardini/tinkerbell-hook/releases/ for updates
     hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240325-1738/"
+    hookDownloadId: "20240325-1738" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
   
   # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions
   hook:

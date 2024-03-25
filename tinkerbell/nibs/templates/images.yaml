@@ -1,10 +1,14 @@
 {{- range $imageId, $image := .Values.provision.images }}
+  # downloadUrl: "{{ $image.downloadURL }}"
+  # image: "{{ $image.image }}"
+  # conversion: "{{ $image.conversion }}"
+{{ $hash :=  trunc 8 (sha1sum (printf "%s-%s-%s" $image.downloadURL $image.image $image.conversion )) }}
 {{ if $image.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{$imageId}}-download-configmap"
+  name: "download-image-{{$imageId}}-{{$hash}}"
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
     "app.kubernetes.io/part-of": "nibs"
@@ -31,7 +35,7 @@ data:
         echo "File $file already exists, skipping download and conversion."
     fi
     {{- end }}
-    
+
     {{- if eq "none" $image.conversion }}
     # No conversion, just a simple download; image must be in raw format, possibly compressed.
     image_url="{{ $image.downloadURL }}"
@@ -44,19 +48,23 @@ data:
     else
       echo "Image file $file already exists. Skipping download."
     fi
-    
+
     {{- end }}
-    
+
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{$imageId}}-download-job"
+  name: "download-image-{{$imageId}}-{{$hash}}"
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
     "app.kubernetes.io/part-of": "nibs"
 spec:
   template:
+    metadata:
+      labels:
+        "app.kubernetes.io/instance": "{{ $.Release.Name }}"
+        "app.kubernetes.io/part-of": "nibs"
     spec:
       containers:
         - name: download-{{$imageId}}
@@ -81,6 +89,6 @@ spec:
         - name: configmap-volume
           configMap:
             defaultMode: 0700
-            name: "{{$imageId}}-download-configmap"
+            name: "download-image-{{$imageId}}-{{$hash}}"
 {{- end }}
 {{- end }}

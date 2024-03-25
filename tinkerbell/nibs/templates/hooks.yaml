@@ -1,11 +1,17 @@
 {{- range $hookId, $hook := .Values.provision.hook }}
+{{- $common := $.Values.provision.common -}}
+{{- $hook = merge $hook $common }}
+  # downloadId: {{ $hook.hookDownloadId }}
+  # downloadFile: {{ $hook.downloadFile }}
+  # hookDownloadBaseUrl: {{ $hook.hookDownloadBaseUrl }}
+{{ $hash := trunc 8 (sha1sum (printf "%s-%s-%s" $hook.hookDownloadId $hook.hookDownloadBaseUrl $hook.downloadFile)) }}
 {{ if $hook.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: download-hook-{{$hookId}}
-  namespace: {{ $.Release.Namespace }}
+  name: "download-hook-{{$hookId}}-{{$hash}}"
+  namespace: "{{ $.Release.Namespace }}"
 data:
   entrypoint.sh: |
     #!/usr/bin/env bash
@@ -13,7 +19,7 @@ data:
     set -euxo pipefail
     mkdir -p "/output/download_hook_{{$hookId}}"
     cd "/output/download_hook_{{$hookId}}"
-    declare down_url="{{ $.Values.provision.common.hookDownloadBaseURL }}{{$hook.downloadFile}}"
+    declare down_url="{{ $hook.hookDownloadBaseURL }}{{$hook.downloadFile}}"
     declare down_file="/output/download_hook_{{$hookId}}/{{$hook.downloadFile}}"
     wget -O "${down_file}.tmp" "${down_url}"
     mv -v "${down_file}.tmp" "${down_file}"
@@ -24,12 +30,12 @@ data:
     rm -rf "/output/download_hook_{{$hookId}}"
     ls -lah "/output/{{$hook.kernel}}"
     ls -lah "/output/{{$hook.initrd}}"
-    
+
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: download-hook-{{$hookId}}
+  name: "download-hook-{{$hookId}}-{{$hash}}"
   namespace: {{ $.Release.Namespace }}
 spec:
   backoffLimit: 50
@@ -56,8 +62,6 @@ spec:
         - name: configmap-volume
           configMap:
             defaultMode: 0700
-            name: download-hook-{{$hookId}}
-
-
+            name: "download-hook-{{$hookId}}-{{$hash}}"
 {{- end }}
 {{- end }}
