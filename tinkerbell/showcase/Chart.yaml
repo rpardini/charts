@@ -1,0 +1,7 @@
+apiVersion: v2
+name: showcase
+description: Tinkerbell CR's for a plethora of standard and exotic hardware
+type: application
+version: "0.4.3-rpardini7"
+appVersion: "0.4.3"
+

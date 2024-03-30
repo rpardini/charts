@@ -15,14 +15,18 @@ metadata:
 data:
   entrypoint.sh: |-
     #!/usr/bin/env bash
+    set -euxo pipefail
+    cat > /etc/apk/repositories << EOF; $(echo)
+    https://dl-cdn.alpinelinux.org/alpine/v$(cut -d'.' -f1,2 /etc/alpine-release)/main/
+    https://dl-cdn.alpinelinux.org/alpine/v$(cut -d'.' -f1,2 /etc/alpine-release)/community/
+    https://dl-cdn.alpinelinux.org/alpine/edge/community/
+    EOF
+    apk update
     {{- if eq "qemu-to-raw-gzip" $image.conversion }}
     # This script is designed to download a cloud image file (.img) and then convert it to a .raw.gz file.
     # This is purpose built so non-raw cloud image files can be used with the "image2disk" action.
     # See https://artifacthub.io/packages/tbaction/tinkerbell-community/image2disk.
-    set -euxo pipefail
-    if ! which pigz qemu-img &> /dev/null; then
-        apk add --update pigz qemu-img
-    fi
+    apk add pigz qemu-img
     image_url=$1
     file=$2/${image_url##*/}
     file=${file%.*}.raw.gz
@@ -48,9 +52,27 @@ data:
     else
       echo "Image file $file already exists. Skipping download."
     fi
-
     {{- end }}
 
+    {{- if eq "xz-to-gz" $image.conversion }}
+    apk add pigz pixz
+    # Download, then produce a .gz file from a .xz file, using pigz and pixz, and using a pipe.
+    image_url="{{ $image.downloadURL }}"
+    file="/output/{{ $image.image }}"
+    if [[ ! -f "$file" ]]; then
+      echo "Image file $file does not exist. Downloading...."
+      wget "$image_url" -O "${file}.tmp.xz"
+      echo "Done downloading image. Converting from xz to gz..."  
+      pixz -d < "${file}.tmp.xz" | pigz > "${file}.tmp"  
+      mv -v "${file}.tmp" "$file"
+      echo "Done converting image."
+      rm -f "${file}.tmp.xz"
+    else
+      echo "Image file $file already exists. Skipping download."
+    fi
+
+    {{- end }}
+    
 ---
 apiVersion: batch/v1
 kind: Job
@@ -77,14 +99,14 @@ spec:
             ]
           volumeMounts:
             - mountPath: /output
-              name: hook-artifacts
+              name: image-artifacts
             - mountPath: /script
               name: configmap-volume
       restartPolicy: OnFailure
       volumes:
-        - name: hook-artifacts
+        - name: image-artifacts
           hostPath:
-            path: /opt/hook
+            path: {{ $.Values.tinkerbell.hostDirectory }}
             type: DirectoryOrCreate
         - name: configmap-volume
           configMap:

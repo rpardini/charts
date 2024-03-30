@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
         - name: download-hook-{{$hookId}}
-          image: {{ $.Values.stack.stack.hook.image }}
+          image: bash:5
           command: [ "/script/entrypoint.sh" ]
           volumeMounts:
             - mountPath: /output
@@ -57,7 +57,7 @@ spec:
       volumes:
         - name: hook-artifacts
           hostPath:
-            path: {{ $.Values.stack.stack.hook.downloadsDest }}
+            path: {{ $.Values.tinkerbell.hostDirectory | quote }}
             type: DirectoryOrCreate
         - name: configmap-volume
           configMap:

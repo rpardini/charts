@@ -66,8 +66,8 @@ spec:
         ipxe: # @TODO
           contents: |
             echo Showcase starting for {{$deviceId}} with hook {{$mergedDevice.hookRef}} and image {{$mergedDevice.imageRef}}...
-            set download-url http://{{ $.Values.stack.stack.loadBalancerIP }}:8080
-            set kernel-params tink_worker_image=quay.io/tinkerbell/tink-worker:latest facility= syslog_host={{ $.Values.stack.stack.loadBalancerIP }} grpc_authority={{ $.Values.stack.stack.loadBalancerIP }}:42113 tinkerbell_tls=false worker_id={{$dev.mac}} hw_addr={{$dev.mac}} modules=loop,squashfs,sd-mod,usb-storage initrd={{ $hookObj.initrd }} {{$hookObj.kernelCommandLine}} {{ $dev.extraKernelCommandLine }}
+            set download-url {{ $.Values.tinkerbell.hookURL }}
+            set kernel-params tink_worker_image=quay.io/tinkerbell/tink-worker:latest facility= syslog_host={{ $.Values.tinkerbell.syslogHost }} grpc_authority={{ $.Values.tinkerbell.grpcAuthority }} tinkerbell_tls=false worker_id={{$dev.mac}} hw_addr={{$dev.mac}} modules=loop,squashfs,sd-mod,usb-storage initrd={{ $hookObj.initrd }} {{$hookObj.kernelCommandLine}} {{ $dev.extraKernelCommandLine }}
             echo Kernel image: ${download-url}/{{ $hookObj.kernel }}
             echo Kernel initrd: ${download-url}/{{ $hookObj.initrd }}
             echo Kernel cmdline: ${kernel-params}
@@ -102,7 +102,7 @@ spec:
             timeout: 600
             environment:
               DEST_DISK: "{{ $rootDiskDevice }}"
-              IMG_URL: "http://{{ $.Values.stack.stack.loadBalancerIP }}:8080/{{ $imageObj.image }}"
+              IMG_URL: "{{ $.Values.tinkerbell.imagesURL }}/{{ $imageObj.image }}"
               COMPRESSED: true
 
           {{- if $imageObj.doGrowPart }}

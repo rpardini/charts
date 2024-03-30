@@ -1,24 +1,10 @@
-stack:
-  stack:
-    relay:
-      macvlanIntfNumber: "66" # string! So it does not keep changing every deploy
-    loadBalancerIP: 192.168.66.75 # MUST be set
-    hook:
-      downloadEnabled: false # This chart does its own download jobs, but we count on stack chart's nginx to serve them
-  hegel:
-    trustedProxies: [ "0.0.0.0/0" ] # Trust _all_ proxies, insecure
-  smee:
-    trustedProxies: [ "0.0.0.0/0" ] # Trust _all_ proxies, insecure
-    publicIP: 192.168.66.75 # Must be set
-    image: quay.io/tinkerbellrpardini/smee:latest-rpardini # custom build with updated ipxedust and arm64 NAPNULL for u-boot's PXE-via-EFI
-    imagePullPolicy: Always # I re-push it there sometimes
-  tink:
-    controller:
-      image: quay.io/tinkerbell/tink-controller:latest # make sure we work with latest version
-      imagePullPolicy: Always
-    server:
-      image: quay.io/tinkerbell/tink:latest # to make sure we work with the la
-      imagePullPolicy: Always
+# Tell me about your planet, Usul:
+tinkerbell:
+  hostDirectory: "/opt/hook"
+  hookURL: "http://192.168.66.71:8080" # @TODO
+  imagesURL: "http://192.168.66.71:8080" # @TODO
+  syslogHost: "192.168.66.71"
+  grpcAuthority: "192.168.66.71:42113"
 
 actions:
   repository: "quay.io/tinkerbellrpardini/actions"
@@ -31,8 +17,8 @@ provision:
   common:
     # Used together with downloadFile field in each hook; @TODO: can be overriden by using downloadURL field in each hook
     # Check https://github.com/rpardini/tinkerbell-hook/releases/ for updates
-    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240325-1738/"
-    hookDownloadId: "20240325-1738" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
+    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240325-2205/"
+    hookDownloadId: "20240325-2205" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
   
   # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions
   hook:
@@ -113,7 +99,7 @@ provision:
       conversion: "qemu-to-raw-gzip"
       doGrowPart: true
       doUserAndSshSetup: true
-      rootfsPartitionNumber: "1" # must be a string
+      rootfsPartitionNumber: "1" # @schema type:[integer] # @TODO fix so this mustn't be a string
 
     "ubuntu-jammy-cloud-amd64":
       enabled: true
@@ -128,9 +114,19 @@ provision:
     "armbian-rpardini-rockpro64-edge-uboot":
       enabled: true
       arch: "aarch64"
-      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.24-armsurvivors-45/Armbian-unofficial_24.03.24-armsurvivors-45_Rockpro64_bookworm_edge_6.7.10.img.xz"
-      image: "Armbian-unofficial_24.03.24-armsurvivors-45_Rockpro64_bookworm_edge_6.7.10.img.xz"
-      conversion: "none"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.30-armsurvivors-64/Armbian-unofficial_24.03.30-armsurvivors-64_Rockpro64_bookworm_edge_6.8.2.img.xz"
+      image: "Armbian-unofficial_24.03.30-armsurvivors-64_Rockpro64_bookworm_edge_6.8.2.img.gz"
+      conversion: "xz-to-gz"
+      doGrowPart: false # Armbian does it itself when booted
+      doUserAndSshSetup: false # Armbian does it itself when booted
+      rootfsPartitionNumber: "1"
+    
+    "armbian-rpardini-orangepi3b-edge-uboot":
+      enabled: true
+      arch: "aarch64"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.30-armsurvivors-64/Armbian-unofficial_24.03.30-armsurvivors-64_Orangepi3b_bookworm_edge_6.8.2.img.xz"
+      image: "Armbian-unofficial_24.03.30-armsurvivors-64_Orangepi3b_bookworm_edge_6.8.2.img.gz"
+      conversion: "xz-to-gz"
       doGrowPart: false # Armbian does it itself when booted
       doUserAndSshSetup: false # Armbian does it itself when booted
       rootfsPartitionNumber: "1"
@@ -138,9 +134,9 @@ provision:
     "armbian-rpardini-rpi4b-current-not-efi":
       enabled: true
       arch: "aarch64"
-      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.24-armsurvivors-45/Armbian-unofficial_24.03.24-armsurvivors-45_Rpi4b_bookworm_current_6.6.22.img.xz"
-      image: "Armbian-unofficial_24.03.24-armsurvivors-45_Rpi4b_bookworm_current_6.6.22.img.xz"
-      conversion: "none"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.30-armsurvivors-64/Armbian-unofficial_24.03.30-armsurvivors-64_Rpi4b_bookworm_current_6.6.23.img.xz"
+      image: "Armbian-unofficial_24.03.30-armsurvivors-64_Rpi4b_bookworm_current_6.6.23.img.gz"
+      conversion: "xz-to-gz"
       doGrowPart: false # Armbian does it itself when booted
       doUserAndSshSetup: false # Armbian does it itself when booted
       rootfsPartitionNumber: "2" # rpi image has a fat32 boot partition (config.txt and such), and partition 2 is the real ext4 rootfs
@@ -158,43 +154,16 @@ hardware:
   common:
     uefi: true
     ipv4:
-      gateway: "192.168.66.1" # Must be set, otherwise no internet access; can be overriden per-device
+      gateway: "192.168.99.1" # Must be set, otherwise no internet access; can be overriden per-device
       netmask: "255.255.255.0"
       dns: [ "192.168.66.1" ]
 
   devices: # One entry for each machine
-
-    "vm01":
-      arch: aarch64
-      mac: "52:54:00:01:03:01"
-      rootDisk: "/dev/vdb"
-      ipv4:
-        address: "192.168.66.244"
-      hookRef: "armbian-uefi-arm64-edge" # "default-hook-aarch64" # defined above
-      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
-      extraKernelCommandLine: "console=ttyAMA0"
-
-    "vm03":
-      arch: aarch64
-      mac: "52:54:00:01:03:03"
-      rootDisk: "/dev/vdb"
-      ipv4:
-        address: "192.168.66.246"
-      #hookRef: "new-hook-aarch64" # defined above
-      hookRef: "armbian-uefi-arm64-edge" # "default-hook-aarch64" # defined above
-      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
-      extraKernelCommandLine: "console=ttyAMA0"
-
-    "vm02":
-      arch: x86_64
-      mac: "52:54:00:01:03:02"
-      rootDisk: "/dev/vdb"
-      ipv4:
-        address: "192.168.66.245"
-      hookRef: "armbian-uefi-x86-edge" # "default-hook-amd64" # defined above
-      imageRef: "ubuntu-jammy-cloud-amd64" # defined above
-      extraKernelCommandLine: "console=ttyS0"
     
+    # Examples for use in Hook development environment.
+    # There is a `bash build.sh build-run-qemu` command in Hook, that paired with
+    # `export MAC=11:22:33:44:55:66 TINK_SERVER=x.y.z.y` can be used with the below "machines".
+    # The MAC address is not really used by the qemu VM, but is passed via kernel cmdline.
     "run-qemu-x86":
       arch: x86_64
       mac: "11:22:33:44:55:66"
@@ -210,38 +179,85 @@ hardware:
       mac: "11:22:33:44:55:77"
       rootDisk: "/dev/vda" # wonder why linuxkit only uses virtio for arm64? intel is sda...
       ipv4:
-        address: "192.168.66.249"
+        address: "192.168.66.246"
       hookRef: "armbian-uefi-arm64-edge" # "default-hook-aarch64" # defined above
       imageRef: "ubuntu-jammy-cloud-arm64" # defined above
       extraKernelCommandLine: "console=ttyAMA0"
     
+    
+    ###
+    ###
+    ###
+    # Examples for virtual machines, ran outside of Hook's build system.
+    # Most virtualization software has support for PXE booting.
+    # You will need to have (bridging/etc) setup to get a proper IP address from a real Smee, etc.
+    "vm03":
+      arch: aarch64
+      mac: "52:54:00:01:03:03"
+      rootDisk: "/dev/vdb"
+      ipv4:
+        address: "192.168.99.41"
+      hookRef: "armbian-uefi-arm64-edge" # "default-hook-aarch64" # defined above
+      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+      extraKernelCommandLine: "console=ttyAMA0"
+
+    "vm09":
+      arch: x86_64
+      mac: "52:54:00:01:03:09"
+      rootDisk: "/dev/vdb"
+      ipv4:
+        address: "192.168.99.42"
+      hookRef: "armbian-uefi-x86-edge" # "default-hook-amd64" # defined above
+      imageRef: "ubuntu-jammy-cloud-amd64" # defined above
+      extraKernelCommandLine: "console=ttyS0"
+    
+    
+    ###
+    ###
+    ###
+    # Examples for actual bare-metal hardware, mostly arm64 SBCs.
+    
+    
+    # Khadas VIM3L and other meson64-based boards (u-boot)
     "vim3l":
       arch: aarch64
       mac: "c8:63:14:71:2a:6d"
       rootDisk: "/dev/mmcblk0"
       ipv4:
-        address: "192.168.66.246"
-      hookRef: "armbian-meson64-edge" # "armbian-uefi-current-arm64" # "default-hook-aarch64" #  # "armbian-meson64-current" #  # defined above
-      imageRef: "ubuntu-jammy-cloud-arm64" # defined above
+        address: "192.168.99.51"
+      hookRef: "armbian-meson64-edge"
+      imageRef: "ubuntu-jammy-cloud-arm64"
       extraKernelCommandLine: "console=ttyAML0,115200"
     
+    # RockPro64 and other rockchip64-based boards (u-boot)
     "rockpro64":
       arch: aarch64
       mac: "2a:36:cb:a2:ae:b8"
       #rootDisk: "/dev/mmcblk2"  # mmcblk2 is the eMMC, mmcblk1 is the SD card
       rootDisk: "/dev/disk/by-id/mmc-AJTD4R_0x0b05e84d" # much safer to use this style
       ipv4:
-        address: "192.168.66.247"
+        address: "192.168.99.52"
       hookRef: "armbian-rockchip64-edge" # defined above
       imageRef: "armbian-rpardini-rockpro64-edge-uboot" # defined above
       extraKernelCommandLine: "console=ttyS2,1500000"
     
+    "orangepi3b":
+      arch: aarch64
+      mac: "b6:a7:96:d5:f1:84"
+      rootDisk: "/dev/disk/by-id/mmc-A3A551_0x2f8c5bd0" # /dev/mmcblk0 is the eMMC
+      ipv4:
+        address: "192.168.99.53"
+      hookRef: "armbian-rockchip64-edge"
+      imageRef: "armbian-rpardini-orangepi3b-edge-uboot" # defined above
+      extraKernelCommandLine: "console=ttyS2,1500000"
+    
+    # Raspberry Pi 4B (bcm2711), using edk2 UEFI firmware on an SD card, and an external NVMe-USB disk
     "rpi4b":
       arch: aarch64
       mac: "dc:a6:32:ec:8b:49"
       rootDisk: "/dev/disk/by-id/wwn-0x3001237923792379"
       ipv4:
-        address: "192.168.66.248"
+        address: "192.168.99.54"
       hookRef: "armbian-bcm2711-current" # works, as long as UEFI is set with ACPI+DTB and no 3gb limit. Use edk2 from https://github.com/pftf/RPi4
       imageRef: "armbian-rpardini-rpi4b-current-not-efi" # defined above
       extraKernelCommandLine: "console=tty1 console=ttyAMA0,115200 loglevel=7" # Last console defined "wins", thus use tty1 last if no serial console
