@@ -7,9 +7,14 @@
 {{- $common := $.Values.hardware.common -}}
 {{- $mergedDevice := merge $dev $common }}
 {{- $hookObj := index $.Values.provision.hook $mergedDevice.hookRef }}
-{{- if not $hookObj }}{{- fail "hookRef not found"  }}{{- end }}
+{{- if not $hookObj }}{{- fail (printf "Device '%s', hookRef '%s': %s" $deviceId $mergedDevice.hookRef "hookRef not found") }}{{- end }}
 {{- $imageObj := index $.Values.provision.images $mergedDevice.imageRef }}
-{{- if not $imageObj }}{{- fail "imageRef not found"  }}{{- end }}
+{{- if not $imageObj }}{{- (printf "Device '%s', imageRef '%s': %s" $deviceId $mergedDevice.imageRef "imageRef not found") }}{{- end }}
+# Check sanity of arch across device / image / hook - they all must match
+# Device arch: {{$dev.arch}} Image arch: {{$imageObj.arch}} Hook arch: {{$hookObj.arch}}
+{{- if ne $imageObj.arch $hookObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "image and hook arch mismatch") }}{{- end }}
+{{- if ne $dev.arch $imageObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "device and image arch mismatch") }}{{- end }}
+{{- if ne $dev.arch $hookObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "device and hook arch mismatch") }}{{- end }}
 {{- $rootDiskDevice := $mergedDevice.rootDisk }}
 {{- $rootDiskRootfsPartitionNumber := printf "%s" $imageObj.rootfsPartitionNumber }}
   # rootDiskRootfsPartitionNumber is {{$rootDiskRootfsPartitionNumber}}
