@@ -1,10 +1,23 @@
 {{- range $imageId, $image := .Values.provision.images }}
+---
+# --> ImageId: {{ $imageId }}
   # downloadUrl: "{{ $image.downloadURL }}"
   # image: "{{ $image.image }}"
   # conversion: "{{ $image.conversion }}"
-{{ $hash :=  trunc 8 (sha1sum (printf "%s-%s-%s" $image.downloadURL $image.image $image.conversion )) }}
-{{ if $image.enabled }}
----
+{{- $hash :=  trunc 8 (sha1sum (printf "%s-%s-%s" $image.downloadURL $image.image $image.conversion )) }}
+# Loop over $.Values.hardware.devices (a dictionary) and for each value, check if it's imageRef matches this $imageId - if so, enable this image.
+{{- $enabledByDeviceUsage := false }}
+{{- range $device := $.Values.hardware.devices }}
+# Testing {{$device.imageRef}} against {{$imageId}}...
+{{- if and $device.enabled (eq $device.imageRef $imageId) -}}
+# YES!
+{{- $enabledByDeviceUsage = true -}}
+{{- else -}}
+# NO!
+{{- end -}}
+{{- end }}
+{{- if or $enabledByDeviceUsage $image.enabled }}
+# ImageId: {{ $imageId }} - force enabled? {{ $image.enabled }} -- enabled by device usage? {{ $enabledByDeviceUsage }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -112,5 +125,7 @@ spec:
           configMap:
             defaultMode: 0700
             name: "download-image-{{$imageId}}-{{$hash}}"
+{{- else }}
+# ImageId: {{ $imageId }} DISABLED - force enabled? {{ $image.enabled }} -- enabled by device usage? {{ $enabledByDeviceUsage }}
 {{- end }}
 {{- end }}

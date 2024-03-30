@@ -20,10 +20,12 @@ provision:
     hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240325-2205/"
     hookDownloadId: "20240325-2205" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
   
-  # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions
+  # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions.
+  # Important: each definition will be auto-enabled when they're referenced in an enabled device. You can force them enabled: true
+  # to download/prepare it even if no device is using it.
   hook:
     "default-hook-amd64":
-      enabled: true
+      enabled: false
       arch: "x86_64"
       downloadFile: "hook-x86_64.tar.gz"
       kernel: "vmlinuz-x86_64"
@@ -32,7 +34,7 @@ provision:
       bootMode: kexec
 
     "default-hook-aarch64":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadFile: "hook-aarch64.tar.gz"
       kernel: "vmlinuz-aarch64"
@@ -41,7 +43,7 @@ provision:
       bootMode: kexec # kexec is no-go here, kernel problem? (persists after enabling CONFIG_KEXEC & trying to fix TB action)
 
     "armbian-uefi-x86-edge":
-      enabled: true
+      enabled: false
       arch: "x86_64"
       downloadFile: "hook-armbian-uefi-x86-edge.tar.gz"
       kernel: "vmlinuz-armbian-uefi-x86-edge"
@@ -51,7 +53,7 @@ provision:
     
     
     "armbian-uefi-arm64-edge":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadFile: "hook-armbian-uefi-arm64-edge.tar.gz"
       kernel: "vmlinuz-armbian-uefi-arm64-edge"
@@ -60,7 +62,7 @@ provision:
       bootMode: kexec # still no go with kexec -- this is a TB action problem for sure, not kernel problem
     
     "armbian-meson64-edge":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadFile: "hook-armbian-meson64-edge.tar.gz"
       kernel: "vmlinuz-armbian-meson64-edge"
@@ -69,7 +71,7 @@ provision:
       bootMode: reboot
     
     "armbian-rockchip64-edge":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadFile: "hook-armbian-rockchip64-edge.tar.gz"
       kernel: "vmlinuz-armbian-rockchip64-edge"
@@ -78,7 +80,7 @@ provision:
       bootMode: reboot
     
     "armbian-bcm2711-current":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadFile: "hook-armbian-bcm2711-current.tar.gz"
       kernel: "vmlinuz-armbian-bcm2711-current"
@@ -90,9 +92,11 @@ provision:
   
   
   # Define deployment images; we've a few examples using Ubuntu and Armbian
+  # Important: each definition will be auto-enabled when they're referenced in an enabled device. You can force them enabled: true
+  # to download/prepare it even if no device is using it.
   images:
     "ubuntu-jammy-cloud-arm64":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-arm64.img"
       image: "jammy-server-cloudimg-arm64.raw.gz"
@@ -102,7 +106,7 @@ provision:
       rootfsPartitionNumber: "1" # @schema type:[integer] # @TODO fix so this mustn't be a string
 
     "ubuntu-jammy-cloud-amd64":
-      enabled: true
+      enabled: false
       arch: "x86_64"
       downloadURL: "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-amd64.img"
       conversion: "qemu-to-raw-gzip"
@@ -112,7 +116,7 @@ provision:
       rootfsPartitionNumber: "1"
     
     "armbian-rpardini-rockpro64-edge-uboot":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.30-armsurvivors-64/Armbian-unofficial_24.03.30-armsurvivors-64_Rockpro64_bookworm_edge_6.8.2.img.xz"
       image: "Armbian-unofficial_24.03.30-armsurvivors-64_Rockpro64_bookworm_edge_6.8.2.img.gz"
@@ -122,7 +126,7 @@ provision:
       rootfsPartitionNumber: "1"
     
     "armbian-rpardini-orangepi3b-edge-uboot":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.30-armsurvivors-64/Armbian-unofficial_24.03.30-armsurvivors-64_Orangepi3b_bookworm_edge_6.8.2.img.xz"
       image: "Armbian-unofficial_24.03.30-armsurvivors-64_Orangepi3b_bookworm_edge_6.8.2.img.gz"
@@ -132,7 +136,7 @@ provision:
       rootfsPartitionNumber: "1"
     
     "armbian-rpardini-rpi4b-current-not-efi":
-      enabled: true
+      enabled: false
       arch: "aarch64"
       downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.30-armsurvivors-64/Armbian-unofficial_24.03.30-armsurvivors-64_Rpi4b_bookworm_current_6.6.23.img.xz"
       image: "Armbian-unofficial_24.03.30-armsurvivors-64_Rpi4b_bookworm_current_6.6.23.img.gz"
@@ -165,6 +169,7 @@ hardware:
     # `export MAC=11:22:33:44:55:66 TINK_SERVER=x.y.z.y` can be used with the below "machines".
     # The MAC address is not really used by the qemu VM, but is passed via kernel cmdline.
     "run-qemu-x86":
+      enabled: false
       arch: x86_64
       mac: "11:22:33:44:55:66"
       rootDisk: "/dev/sda"
@@ -175,6 +180,7 @@ hardware:
       extraKernelCommandLine: "console=ttyS0"
 
     "run-qemu-arm64":
+      enabled: false
       arch: aarch64
       mac: "11:22:33:44:55:77"
       rootDisk: "/dev/vda" # wonder why linuxkit only uses virtio for arm64? intel is sda...
@@ -192,6 +198,7 @@ hardware:
     # Most virtualization software has support for PXE booting.
     # You will need to have (bridging/etc) setup to get a proper IP address from a real Smee, etc.
     "vm03":
+      enabled: false
       arch: aarch64
       mac: "52:54:00:01:03:03"
       rootDisk: "/dev/vdb"
@@ -202,6 +209,7 @@ hardware:
       extraKernelCommandLine: "console=ttyAMA0"
 
     "vm09":
+      enabled: false
       arch: x86_64
       mac: "52:54:00:01:03:09"
       rootDisk: "/dev/vdb"
@@ -220,6 +228,7 @@ hardware:
     
     # Khadas VIM3L and other meson64-based boards (u-boot)
     "vim3l":
+      enabled: false
       arch: aarch64
       mac: "c8:63:14:71:2a:6d"
       rootDisk: "/dev/mmcblk0"
@@ -231,6 +240,7 @@ hardware:
     
     # RockPro64 and other rockchip64-based boards (u-boot)
     "rockpro64":
+      enabled: false
       arch: aarch64
       mac: "2a:36:cb:a2:ae:b8"
       #rootDisk: "/dev/mmcblk2"  # mmcblk2 is the eMMC, mmcblk1 is the SD card
@@ -242,6 +252,7 @@ hardware:
       extraKernelCommandLine: "console=ttyS2,1500000"
     
     "orangepi3b":
+      enabled: false
       arch: aarch64
       mac: "b6:a7:96:d5:f1:84"
       rootDisk: "/dev/disk/by-id/mmc-A3A551_0x2f8c5bd0" # /dev/mmcblk0 is the eMMC
@@ -253,6 +264,7 @@ hardware:
     
     # Raspberry Pi 4B (bcm2711), using edk2 UEFI firmware on an SD card, and an external NVMe-USB disk
     "rpi4b":
+      enabled: false
       arch: aarch64
       mac: "dc:a6:32:ec:8b:49"
       rootDisk: "/dev/disk/by-id/wwn-0x3001237923792379"

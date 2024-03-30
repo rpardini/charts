@@ -1,12 +1,26 @@
 {{- range $hookId, $hook := .Values.provision.hook }}
 {{- $common := $.Values.provision.common -}}
 {{- $hook = merge $hook $common }}
+---
+# --> HookId: {{$hookId}}
   # downloadId: {{ $hook.hookDownloadId }}
   # downloadFile: {{ $hook.downloadFile }}
   # hookDownloadBaseUrl: {{ $hook.hookDownloadBaseUrl }}
-{{ $hash := trunc 8 (sha1sum (printf "%s-%s-%s" $hook.hookDownloadId $hook.hookDownloadBaseUrl $hook.downloadFile)) }}
-{{ if $hook.enabled }}
----
+{{- $hash := trunc 8 (sha1sum (printf "%s-%s-%s" $hook.hookDownloadId $hook.hookDownloadBaseUrl $hook.downloadFile)) }}
+# Loop over $.Values.hardware.devices (a dictionary) and for each value, check if it's hookRef matches this $hookId - if so, enable this hook.
+{{- $enabledByDeviceUsage := false }}
+{{- range $device := $.Values.hardware.devices }}
+# Testing {{$device.hookRef}} against {{$hookId}}...
+{{- if and $device.enabled (eq $device.hookRef $hookId) -}}
+  # YES!
+{{- $enabledByDeviceUsage = true -}}
+{{- else -}}
+  # NO!
+{{- end -}}
+{{- end }}
+
+{{- if or $enabledByDeviceUsage $hook.enabled }}
+# Enabled hook: {{$hookId}} - force enabled? {{$hook.enabled}} -- enabled by device usage? {{$enabledByDeviceUsage}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -63,5 +77,7 @@ spec:
           configMap:
             defaultMode: 0700
             name: "download-hook-{{$hookId}}-{{$hash}}"
+{{- else }}
+# Disabled Hook: {{$hookId}}
 {{- end }}
 {{- end }}
