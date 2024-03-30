@@ -31,6 +31,10 @@ data:
     #!/usr/bin/env bash
     # This script is designed to download the Hook artifacts.
     set -euxo pipefail
+    if [[ -f "/output/download_hook_{{$hookId}}_{{$hash}}.done" ]]; then
+      echo "Hook already downloaded ({{$hookId}} - hash: {{$hash}}), skipping."
+      exit 0
+    fi
     mkdir -p "/output/download_hook_{{$hookId}}"
     cd "/output/download_hook_{{$hookId}}"
     declare down_url="{{ $hook.hookDownloadBaseURL }}{{$hook.downloadFile}}"
@@ -44,7 +48,8 @@ data:
     rm -rf "/output/download_hook_{{$hookId}}"
     ls -lah "/output/{{$hook.kernel}}"
     ls -lah "/output/{{$hook.initrd}}"
-
+    touch "/output/download_hook_{{$hookId}}_{{$hash}}.done"
+    
 ---
 apiVersion: batch/v1
 kind: Job

@@ -31,13 +31,17 @@ nodePort:
 
 showcase:
   enabled: true
+  hardware:
+    devices:
+      run-qemu-x86:
+        enabled: true
+  
+  
   tinkerbell:
-    hostDirectory: "/opt/hook333" # This will be needed in smee one day as well, to serve DTB files over TFTP for u-boot
+    hostDirectory: "/opt/hook-jolly-roger" # This will be needed in smee one day as well, to serve DTB files over TFTP for u-boot
     # These two should point to hookImageServer
     hookURL: "http://192.168.99.2:32083"
     imagesURL: "http://192.168.99.2:32083"
-    # used to point to smee at :7171
-    smeeHost: "192.168.99.2"
     # points to smee at :514
     syslogHost: "192.168.99.2"
     # tink's grpc nodeport

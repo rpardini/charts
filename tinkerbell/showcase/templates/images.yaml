@@ -34,16 +34,16 @@ data:
     https://dl-cdn.alpinelinux.org/alpine/v$(cut -d'.' -f1,2 /etc/alpine-release)/community/
     https://dl-cdn.alpinelinux.org/alpine/edge/community/
     EOF
-    apk update
     {{- if eq "qemu-to-raw-gzip" $image.conversion }}
     # This script is designed to download a cloud image file (.img) and then convert it to a .raw.gz file.
     # This is purpose built so non-raw cloud image files can be used with the "image2disk" action.
     # See https://artifacthub.io/packages/tbaction/tinkerbell-community/image2disk.
-    apk add pigz qemu-img
     image_url=$1
     file=$2/${image_url##*/}
     file=${file%.*}.raw.gz
     if [[ ! -f "$file" ]]; then
+        echo "Image file $file does not exist. Downloading...."
+        apk add --update pigz qemu-img
         wget "$image_url" -O image.img
         qemu-img convert -O raw image.img image.raw
         pigz < image.raw > "$file"
@@ -68,12 +68,12 @@ data:
     {{- end }}
 
     {{- if eq "xz-to-gz" $image.conversion }}
-    apk add pigz pixz
     # Download, then produce a .gz file from a .xz file, using pigz and pixz, and using a pipe.
     image_url="{{ $image.downloadURL }}"
     file="/output/{{ $image.image }}"
     if [[ ! -f "$file" ]]; then
       echo "Image file $file does not exist. Downloading...."
+      apk add --update pigz pixz
       wget "$image_url" -O "${file}.tmp.xz"
       echo "Done downloading image. Converting from xz to gz..."  
       pixz -d < "${file}.tmp.xz" | pigz > "${file}.tmp"  
