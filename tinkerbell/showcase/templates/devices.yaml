@@ -41,7 +41,7 @@ metadata:
   name: "{{ $deviceId }}-hardware"
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
-    "app.kubernetes.io/part-of": "nibs"
+    "app.kubernetes.io/part-of": "tinkerbell-showcase"
 spec:
   disks:
     - device: "{{ $rootDiskDevice }}"
@@ -91,7 +91,7 @@ metadata:
   name: "{{ $deviceId }}-template"
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
-    "app.kubernetes.io/part-of": "nibs"
+    "app.kubernetes.io/part-of": "tinkerbell-showcase"
 spec:
   data: |
     version: "0.1"
@@ -240,7 +240,7 @@ metadata:
   name: "{{ $deviceId }}-workflow"
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
-    "app.kubernetes.io/part-of": "nibs"
+    "app.kubernetes.io/part-of": "tinkerbell-showcase"
 spec:
   templateRef: "{{ $deviceId }}-template"
   hardwareRef: "{{ $deviceId }}-hardware"

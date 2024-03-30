@@ -24,7 +24,7 @@ metadata:
   name: "download-image-{{$imageId}}-{{$hash}}"
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
-    "app.kubernetes.io/part-of": "nibs"
+    "app.kubernetes.io/part-of": "tinkerbell-showcase"
 data:
   entrypoint.sh: |-
     #!/usr/bin/env bash
@@ -93,13 +93,13 @@ metadata:
   name: "download-image-{{$imageId}}-{{$hash}}"
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
-    "app.kubernetes.io/part-of": "nibs"
+    "app.kubernetes.io/part-of": "tinkerbell-showcase"
 spec:
   template:
     metadata:
       labels:
         "app.kubernetes.io/instance": "{{ $.Release.Name }}"
-        "app.kubernetes.io/part-of": "nibs"
+        "app.kubernetes.io/part-of": "tinkerbell-showcase"
     spec:
       containers:
         - name: download-{{$imageId}}

@@ -26,6 +26,9 @@ kind: ConfigMap
 metadata:
   name: "download-hook-{{$hookId}}-{{$hash}}"
   namespace: "{{ $.Release.Namespace }}"
+  labels:
+    "app.kubernetes.io/instance": "{{ $.Release.Name }}"
+    "app.kubernetes.io/part-of": "tinkerbell-showcase"
 data:
   entrypoint.sh: |
     #!/usr/bin/env bash
@@ -56,6 +59,9 @@ kind: Job
 metadata:
   name: "download-hook-{{$hookId}}-{{$hash}}"
   namespace: {{ $.Release.Namespace }}
+  labels:
+    "app.kubernetes.io/instance": "{{ $.Release.Name }}"
+    "app.kubernetes.io/part-of": "tinkerbell-showcase"
 spec:
   backoffLimit: 50
   template:
