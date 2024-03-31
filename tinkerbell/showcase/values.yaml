@@ -17,8 +17,8 @@ provision:
   common:
     # Used together with downloadFile field in each hook; @TODO: can be overriden by using downloadURL field in each hook
     # Check https://github.com/rpardini/tinkerbell-hook/releases/ for updates
-    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240325-2205/"
-    hookDownloadId: "20240325-2205" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
+    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240331-0055/"
+    hookDownloadId: "20240331-0055" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
   
   # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions.
   # Important: each definition will be auto-enabled when they're referenced in an enabled device. You can force them enabled: true
@@ -76,7 +76,7 @@ provision:
       downloadFile: "hook-armbian-rockchip64-edge.tar.gz"
       kernel: "vmlinuz-armbian-rockchip64-edge"
       initrd: "initramfs-armbian-rockchip64-edge"
-      kernelCommandLine: "" # "acpi=off efi=noruntime"
+      kernelCommandLine: ""
       bootMode: reboot
     
     "armbian-bcm2711-current":
@@ -85,11 +85,26 @@ provision:
       downloadFile: "hook-armbian-bcm2711-current.tar.gz"
       kernel: "vmlinuz-armbian-bcm2711-current"
       initrd: "initramfs-armbian-bcm2711-current"
-      kernelCommandLine: "" # "acpi=off efi=noruntime"
+      kernelCommandLine: ""
+      bootMode: reboot
+    
+    "armbian-rk35xx-vendor":
+      enabled: false
+      arch: "aarch64"
+      downloadFile: "hook-armbian-rk35xx-vendor.tar.gz"
+      kernel: "vmlinuz-armbian-rk35xx-vendor"
+      initrd: "initramfs-armbian-rk35xx-vendor"
+      kernelCommandLine: "acpi=off efi=noruntime splash=verbose"
       bootMode: reboot
   
-  
-  
+    "armbian-rk35xx-legacy":
+      enabled: false
+      arch: "aarch64"
+      downloadFile: "hook-armbian-rk35xx-legacy.tar.gz"
+      kernel: "vmlinuz-armbian-rk35xx-legacy"
+      initrd: "initramfs-armbian-rk35xx-legacy"
+      kernelCommandLine: "" # acpi=off efi=noruntime splash=verbose
+      bootMode: reboot
   
   # Define deployment images; we've a few examples using Ubuntu and Armbian
   # Important: each definition will be auto-enabled when they're referenced in an enabled device. You can force them enabled: true
@@ -144,6 +159,16 @@ provision:
       doGrowPart: false # Armbian does it itself when booted
       doUserAndSshSetup: false # Armbian does it itself when booted
       rootfsPartitionNumber: "2" # rpi image has a fat32 boot partition (config.txt and such), and partition 2 is the real ext4 rootfs
+    
+    "armbian-rpardini-r58x-vendor-uboot": # @TODO this is the wrong thing to use. we need a generic EFI-enabled image without forcing DTB. Same for all the others!
+      enabled: false
+      arch: "aarch64"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.03.30-armsurvivors-64/Armbian-unofficial_24.03.30-armsurvivors-64_Mekotronics-r58x-pro_bookworm_vendor_6.1.43.img.xz"
+      image: "Armbian-unofficial_24.03.30-armsurvivors-64_Mekotronics-r58x-pro_bookworm_vendor_6.1.43.img.gz"
+      conversion: "xz-to-gz"
+      doGrowPart: false # Armbian does it itself when booted
+      doUserAndSshSetup: false # Armbian does it itself when booted
+      rootfsPartitionNumber: "1" # first partition, ext4 rootfs 
     
     "armbian-bookworm-meson64-current-cloud":
       enabled: false
@@ -273,3 +298,14 @@ hardware:
       hookRef: "armbian-bcm2711-current" # works, as long as UEFI is set with ACPI+DTB and no 3gb limit. Use edk2 from https://github.com/pftf/RPi4
       imageRef: "armbian-rpardini-rpi4b-current-not-efi" # defined above
       extraKernelCommandLine: "console=tty1 console=ttyAMA0,115200 loglevel=7" # Last console defined "wins", thus use tty1 last if no serial console
+
+    "mekotronics-r58x-pro-via-usb":
+      enabled: false
+      arch: aarch64
+      mac: "3c:18:a0:15:9a:9f" # 3C18A0159A9F
+      ipv4:
+        address: "192.168.99.55"
+      hookRef: "armbian-rk35xx-legacy" # "armbian-rk35xx-vendor"
+      imageRef: "armbian-rpardini-r58x-vendor-uboot"
+      extraKernelCommandLine: "console=ttyFIQ0:1500000 " # console=tty1  # Last console defined "wins", thus use tty1 last if no serial console
+      rootDisk: "/dev/nvme0NOENOENOENEyet"
