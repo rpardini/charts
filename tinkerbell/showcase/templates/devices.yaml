@@ -15,7 +15,8 @@
 {{- if ne $imageObj.arch $hookObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "image and hook arch mismatch") }}{{- end }}
 {{- if ne $dev.arch $imageObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "device and image arch mismatch") }}{{- end }}
 {{- if ne $dev.arch $hookObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "device and hook arch mismatch") }}{{- end }}
-{{- $rootDiskDevice := $mergedDevice.rootDisk }}
+{{- $rootDiskDevice := required (printf "Device '%s' - %s" $deviceId "rootDisk is required") $mergedDevice.rootDisk }}
+{{- if not (hasPrefix "/dev" $rootDiskDevice) }}{{- fail (printf "Device '%s' (rootDisk '%s'): '%s'" $deviceId $rootDiskDevice "rootDisk does not begin with /dev") }}{{- end }}
 {{- $rootDiskRootfsPartitionNumber := printf "%s" $imageObj.rootfsPartitionNumber }}
   # rootDiskRootfsPartitionNumber is {{$rootDiskRootfsPartitionNumber}}
 {{- $rootDiskRootfsPartitionDevice := "unknown" }}
