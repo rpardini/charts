@@ -35,6 +35,8 @@ showcase:
     devices:
       run-qemu-x86:
         enabled: true
+      mekotronics-r58x-pro-via-usb: 
+        enabled: true
   
   
   tinkerbell:
