@@ -210,6 +210,16 @@ provision:
       doUserAndSshSetup: false # Armbian does it itself when booted
       rootfsPartitionNumber: "2" # first partition is ESP, 2nd is ext4 rootfs 
     
+    "armsurvivors-rock-5b-edge-uefi-dtb-cloud": # @TODO this is the wrong thing to use. we need a generic EFI-enabled image without forcing DTB. Same for all the others!
+      enabled: false
+      arch: "aarch64"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.04.04-armsurvivors-86/Armbian-unofficial_24.04.04-armsurvivors-86_Rock-5b_trixie_edge_6.8.4-metadata-cloud-edk2.img.qcow2.xz"
+      image: "Armbian-unofficial_24.04.04-armsurvivors-86_Rock-5b_trixie_edge_6.8.4-metadata-cloud-edk2.img.qcow2.gz"
+      conversion: "xz-to-gz"
+      doGrowPart: false # Armbian does it itself when booted
+      doUserAndSshSetup: false # Armbian does it itself when booted
+      rootfsPartitionNumber: "2" # first partition is ESP, 2nd is ext4 rootfs 
+    
     "armbian-bookworm-meson64-current-cloud":
       enabled: false
       arch: "aarch64"
