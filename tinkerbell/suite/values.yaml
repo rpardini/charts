@@ -47,10 +47,10 @@ showcase:
       ####  `export MAC=11:22:33:44:55:66 TINK_SERVER=x.y.z.y` can be used with the below "machines".
       ####  The MAC address is not really used by the qemu VM, but is passed via kernel cmdline.
       "run-qemu-x86":
-        enabled: false
+        enabled: true
         mac: "11:22:33:44:55:66"
       "run-qemu-arm64":
-        enabled: false
+        enabled: true
         mac: "11:22:33:44:55:77"
       
       
@@ -74,15 +74,15 @@ showcase:
           address: "192.168.99.41"
 
       "vm08":
-        enabled: false
+        enabled: true
         arch: x86_64
         mac: "52:54:00:01:03:08"
         rootDisk: "/dev/disk/by-id/virtio-root_disk_serial"
         ipv4:
           address: "192.168.99.59"
         extraKernelCommandLine: "console=ttyS0"
-        imageRef: "fatso-ubuntu-noble-local-amd64"
-        #imageRef: "fatso-ubuntu-noble-baremetal-amd64"
+        #imageRef: "fatso-ubuntu-noble-local-amd64"
+        imageRef: "fatso-ubuntu-noble-baremetal-amd64"
         hookRef: "default-hook-amd64"
         userData: |
           #include https://cloud-init.pardini.net/rpardini/oldskool-rpardini/master/base
@@ -90,7 +90,7 @@ showcase:
         #  bootMode: kexec
 
       "vm09":
-        enabled: false
+        enabled: true
         arch: x86_64
         mac: "52:54:00:01:03:09"
         rootDisk: "/dev/disk/by-id/virtio-root_disk_serial"
@@ -104,17 +104,15 @@ showcase:
       
       
       "thundercat":
-        enabled: false
+        enabled: true
         arch: x86_64
         #mac: "3c:18:a0:15:9a:9f" # thinkpad 100mbit/s?
         #mac: "8c:ae:4c:dd:10:78" # 2.5gbit plugable
         mac: "3c:18:a0:95:69:f7" # amazonbasics white usb3
-        rootDisk: "/dev/sda"
+        rootDisk: "/dev/disk/by-id/ata-TS120GMTS420S_naa.57c3548212839d88" # which is sda
         ipv4:
           address: "192.168.99.70"
-        #extraKernelCommandLine: "console=ttyUSB0,115200" 
-        #extraKernelCommandLine: "console=tty0 "
-        extraKernelCommandLine: "console=tty0 " # console=ttyUSB0,115200 # n8 breaks getty?
+        extraKernelCommandLine: "console=ttyUSB0,115200 console=tty0" # 
         #hookOverride:
         #  bootMode: kexec
         userData: |
@@ -132,8 +130,8 @@ showcase:
         #imageRef: "fatso-ubuntu-noble-local-amd64"
         #imageRef: "fatso-rocky8-baremetal-amd64"
         #imageRef: "fatso-rocky8-local-amd64"
+        #imageRef: "fatso-ubuntu-noble-baremetal-amd64"
         imageRef: "fatso-ubuntu-noble-baremetal-amd64"
-        #imageRef: "fatso-ubuntu-noble-local-amd64"
       
       
       ###
@@ -149,7 +147,7 @@ showcase:
           address: "192.168.99.51"
 
       "t95z":
-        enabled: false
+        enabled: true
         arch: aarch64
         mac: "ea:da:5c:76:8d:09"
         rootDisk: "/dev/sda" # USB Disk plugged in
@@ -159,7 +157,7 @@ showcase:
           #include https://cloud-init.pardini.net/rpardini/oldskool-rpardini/master/base
       
       "odroidhc4":
-        enabled: false
+        enabled: true
         arch: aarch64
         mac: "00:1e:06:49:15:91"
         rootDisk: "/dev/sda" # SATA Disk plugged in
@@ -186,7 +184,7 @@ showcase:
       
       # Raspberry Pi 4B (bcm2711), using edk2 UEFI firmware on an SD card, and an external NVMe-USB disk
       "rpi4b":
-        enabled: false
+        enabled: true
         mac: "dc:a6:32:ec:8b:49"
         rootDisk: "/dev/disk/by-id/wwn-0x3001237923792379" # a specific USB disk, by-id.
         ipv4:
