@@ -1,3 +1,4 @@
+{{- if .Values.generateJobs }}
 {{- range $hookId, $hook := .Values.provision.hook }}
 {{- $common := $.Values.provision.common -}}
 {{- $hook = merge $hook $common }}
@@ -99,5 +100,6 @@ spec:
             name: "download-hook-{{$hookId}}-{{$hash}}"
 {{- else }}
 # Disabled Hook: {{$hookId}}
+{{- end }}
 {{- end }}
 {{- end }}

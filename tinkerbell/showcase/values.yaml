@@ -11,6 +11,8 @@ actions:
   repository: "quay.io/tinkerbellrpardini/actions" # rpardini's fork with some fixes for arm64
   version: "latest"
 
+generateJobs: true # Whether to generate jobs or not
+
 # Generates download jobs and configs for easy show-off'ing of Tinkerbell on diverse hardware
 provision:
   # @TODO: many simultaneous download jobs can drive an SD-card/low-bandwidth cluster to its knees. Consider a single download job for all
