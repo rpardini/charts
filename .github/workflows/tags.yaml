@@ -37,6 +37,18 @@ jobs:
       - name: create helm chart package for suite
         run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/suite --dependency-update --version ${ver:1}
 
+      - name: create helm chart package for tink
+        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/tink --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for rufio
+        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/rufio --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for smee
+        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/smee --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for hegel
+        run: ver=${GITHUB_REF_NAME}; helm package tinkerbell/hegel --dependency-update --version ${ver:1}
+
       - name: publish stack chart to ghcr.io
         run: ver=${GITHUB_REF_NAME}; helm push stack-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
 
@@ -45,6 +57,18 @@ jobs:
 
       - name: publish suite chart to ghcr.io
         run: ver=${GITHUB_REF_NAME}; helm push suite-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish tink chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push tink-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish rufio chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push rufio-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish smee chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push smee-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish hegel chart to ghcr.io
+        run: ver=${GITHUB_REF_NAME}; helm push hegel-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
 
       - name: Create Release
         id: create_release
