@@ -6,6 +6,8 @@ tinkerbell:
   hegelURL: "http://192.168.66.71:32061" # Hegel URL
   syslogHost: "192.168.66.71" # Syslog host, usually smee
   grpcAuthority: "192.168.66.71:42113" # Tink's gRPC authority
+  grpcTLS: "false" # true/false (string): Whether to use TLS for gRPC
+  grpcInsecureTLS: "false" # true/false (string): Whether to use insecure TLS for gRPC (if using grpcTLS)
 
 actions:
   repository: "quay.io/tinkerbellrpardini/actions" # rpardini's fork with some fixes for arm64
