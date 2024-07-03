@@ -136,8 +136,7 @@ spec:
           - /lib/firmware:/lib/firmware:ro
 
         actions:
-          - name: "stream-ubuntu-image-{{ $deviceId }}"
-            #image: quay.io/tinkerbell-actions/image2disk:v1.0.0
+          - name: "stream-image-{{ $deviceId }}"
             image: {{ $.Values.actions.repository }}/image2disk:{{ $.Values.actions.version }}
             timeout: 600
             environment:
