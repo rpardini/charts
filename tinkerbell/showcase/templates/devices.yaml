@@ -106,7 +106,7 @@ spec:
           contents: |
             echo Showcase starting for {{$deviceId}} with hook {{$mergedDevice.hookRef}} and image {{$mergedDevice.imageRef}}...
             set download-url {{ $.Values.tinkerbell.hookURL }}
-            set kernel-params tink_worker_image=quay.io/tinkerbell/tink-worker:latest facility= syslog_host={{ $.Values.tinkerbell.syslogHost }} grpc_authority={{ $.Values.tinkerbell.grpcAuthority }} tinkerbell_tls={{ $.Values.tinkerbell.grpcTLS }} tinkerbell_insecure_tls={{ $.Values.tinkerbell.grpcInsecureTLS }} worker_id={{$dev.mac}} hw_addr={{$dev.mac}} modules=loop,squashfs,sd-mod,usb-storage initrd={{ $hookObj.initrd }} {{$hookObj.kernelCommandLine}} {{ $dev.extraKernelCommandLine }}
+            set kernel-params insecure_registries={{ $.Values.tinkerbell.insecureRegistries }} tink_worker_image={{ $.Values.tinkerbell.tinkWorkerImagePrefix }}{{ $.Values.tinkerbell.tinkWorkerImage }} facility= syslog_host={{ $.Values.tinkerbell.syslogHost }} grpc_authority={{ $.Values.tinkerbell.grpcAuthority }} tinkerbell_tls={{ $.Values.tinkerbell.grpcTLS }} tinkerbell_insecure_tls={{ $.Values.tinkerbell.grpcInsecureTLS }} worker_id={{$dev.mac}} hw_addr={{$dev.mac}} modules=loop,squashfs,sd-mod,usb-storage initrd={{ $hookObj.initrd }} {{$hookObj.kernelCommandLine}} {{ $dev.extraKernelCommandLine }}
             echo Kernel image: ${download-url}/{{ $hookObj.kernel }}
             echo Kernel initrd: ${download-url}/{{ $hookObj.initrd }}
             echo Kernel cmdline: ${kernel-params}
