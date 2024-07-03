@@ -8,6 +8,9 @@ tinkerbell:
   grpcAuthority: "192.168.66.71:42113" # Tink's gRPC authority
   grpcTLS: "false" # true/false (string): Whether to use TLS for gRPC
   grpcInsecureTLS: "false" # true/false (string): Whether to use insecure TLS for gRPC (if using grpcTLS)
+  insecureRegistries: "" # (string) comma-separated list of insecure registries (will be accessed over HTTP if listed here)
+  tinkWorkerImage: "quay.io/tinkerbellrpardini/tink-worker:v0.11.0-alpha-rpardini3" # (string) Docker image to use for tink-worker, complete with tag
+  tinkWorkerImagePrefix: "" # prefix to add to tinkWorkerImage, for easy pass-through mirroring it
 
 actions:
   repository: "quay.io/tinkerbellrpardini/actions" # rpardini's fork with some fixes for arm64
