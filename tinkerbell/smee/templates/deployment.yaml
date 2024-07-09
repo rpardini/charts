@@ -42,29 +42,36 @@ spec:
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           args:
             - -log-level={{ .Values.logLevel }}
+            - -tink-server={{ printf "%v:%v" .Values.http.tinkServer.ip .Values.http.tinkServer.port }}
+            - -tink-server-tls={{ .Values.http.tinkServer.tls }}
+            - -tink-server-insecure-tls={{ .Values.http.tinkServer.insecureTLS }}
+            - -osie-url={{include "urlJoiner" (dict "urlDict" .Values.http.osieUrl)}}
             - -backend-kube-namespace={{ .Release.Namespace }}
-            - -dhcp-addr={{ printf "%v:%v" .Values.dhcp.ip .Values.dhcp.port }}
+            - -extra-kernel-args={{ join " " ( append .Values.http.additionalKernelArgs ( printf "tink_worker_image=%s" ( required "missing tinkWorkerImage" .Values.tinkWorkerImage ) ) ) }}
+            - -http-ipxe-binary-enabled={{ .Values.http.ipxeBinaryEnabled }}
+            - -http-ipxe-script-enabled={{ .Values.http.ipxeScriptEnabled }}
             - -dhcp-enabled={{ .Values.dhcp.enabled }}
+            - -syslog-enabled={{ .Values.syslog.enabled }}
+            - -tftp-enabled={{ .Values.tftp.enabled }}
+            - -tftp-timeout={{ .Values.tftp.timeout }}
+            - -trusted-proxies={{ required "missing trustedProxies" ( join "," .Values.trustedProxies ) }}
+            {{- if .Values.autoAddressingHostNetwork }}
+            - -http-port={{ printf "%v" .Values.http.port }}
+            - -dhcp-http-ipxe-script-port={{ printf "%v" .Values.http.port }}
+            - -dhcp-http-ipxe-binary-port={{ printf "%v" .Values.http.port }}
+            {{- else }}
+            # @TODO: those are old and need review, as ports have been split-off into their own arguments
+            - -dhcp-addr={{ printf "%v:%v" .Values.dhcp.ip .Values.dhcp.port }}
             - -dhcp-http-ipxe-binary-url={{include "urlJoiner" (dict "urlDict" .Values.dhcp.httpIPXE.binaryUrl)}}
             - -dhcp-http-ipxe-script-url={{include "urlJoiner" (dict "urlDict" .Values.dhcp.httpIPXE.scriptUrl)}}
             - -dhcp-ip-for-packet={{ .Values.dhcp.ipForPacket }}
             - -dhcp-syslog-ip={{ .Values.dhcp.syslogIp }}
             - -dhcp-tftp-ip={{ .Values.dhcp.tftpIp }}:69
-            - -extra-kernel-args={{ join " " ( append .Values.http.additionalKernelArgs ( printf "tink_worker_image=%s" ( required "missing tinkWorkerImage" .Values.tinkWorkerImage ) ) ) }}
             - -http-addr={{ printf "%v:%v" .Values.http.ip .Values.http.port }}
-            - -http-ipxe-binary-enabled={{ .Values.http.ipxeBinaryEnabled }}
-            - -http-ipxe-script-enabled={{ .Values.http.ipxeScriptEnabled }}
-            - -osie-url={{include "urlJoiner" (dict "urlDict" .Values.http.osieUrl)}}
-            - -tink-server={{ printf "%v:%v" .Values.http.tinkServer.ip .Values.http.tinkServer.port }}
-            - -tink-server-tls={{ .Values.http.tinkServer.tls }}
-            - -tink-server-insecure-tls={{ .Values.http.tinkServer.insecureTLS }}
-            - -trusted-proxies={{ required "missing trustedProxies" ( join "," .Values.trustedProxies ) }}
             - -syslog-addr={{ printf "%v:%v" .Values.syslog.ip .Values.syslog.port }}
-            - -syslog-enabled={{ .Values.syslog.enabled }}
             - -ipxe-script-patch={{ .Values.ipxeScriptPatch }}
             - -tftp-addr={{ printf "%v:%v" .Values.tftp.ip .Values.tftp.port }}
-            - -tftp-enabled={{ .Values.tftp.enabled }}
-            - -tftp-timeout={{ .Values.tftp.timeout }}
+            {{- end }}
           {{- range .Values.additionalArgs }}
             - {{ . }}
           {{- end }}

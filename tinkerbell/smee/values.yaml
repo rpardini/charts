@@ -34,6 +34,9 @@ logLevel: "info"
 # host network.
 hostNetwork: false
 
+# When running in hostNetwork: true mode, you can also let Smee figure out all the references to itself (auto-detect IP).
+autoAddressingHostNetwork: false
+
 # nodeSelector when defined will be constrain Pods to nodes with specific labels
 nodeSelector: {}
 
