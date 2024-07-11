@@ -47,10 +47,10 @@ showcase:
       ####  `export MAC=11:22:33:44:55:66 TINK_SERVER=x.y.z.y` can be used with the below "machines".
       ####  The MAC address is not really used by the qemu VM, but is passed via kernel cmdline.
       "run-qemu-x86":
-        enabled: true
+        enabled: false
         mac: "11:22:33:44:55:66"
       "run-qemu-arm64":
-        enabled: true
+        enabled: false
         mac: "11:22:33:44:55:77"
       
       
@@ -74,7 +74,7 @@ showcase:
           address: "192.168.99.41"
 
       "vm08":
-        enabled: true
+        enabled: false
         arch: x86_64
         mac: "52:54:00:01:03:08"
         rootDisk: "/dev/disk/by-id/virtio-root_disk_serial"
@@ -90,7 +90,7 @@ showcase:
         #  bootMode: kexec
 
       "vm09":
-        enabled: true
+        enabled: false
         arch: x86_64
         mac: "52:54:00:01:03:09"
         rootDisk: "/dev/disk/by-id/virtio-root_disk_serial"
@@ -104,7 +104,7 @@ showcase:
       
       
       "thundercat":
-        enabled: true
+        enabled: false
         arch: x86_64
         #mac: "3c:18:a0:15:9a:9f" # thinkpad 100mbit/s?
         #mac: "8c:ae:4c:dd:10:78" # 2.5gbit plugable
@@ -147,7 +147,7 @@ showcase:
           address: "192.168.99.51"
 
       "t95z":
-        enabled: true
+        enabled: false
         arch: aarch64
         mac: "ea:da:5c:76:8d:09"
         rootDisk: "/dev/sda" # USB Disk plugged in
@@ -157,7 +157,7 @@ showcase:
           #include https://cloud-init.pardini.net/rpardini/oldskool-rpardini/master/base
       
       "odroidhc4":
-        enabled: true
+        enabled: false
         arch: aarch64
         mac: "00:1e:06:49:15:91"
         rootDisk: "/dev/sda" # SATA Disk plugged in
@@ -182,9 +182,12 @@ showcase:
         ipv4:
           address: "192.168.99.53"
       
+      "odroidm1":
+        enabled: true
+
       # Raspberry Pi 4B (bcm2711), using edk2 UEFI firmware on an SD card, and an external NVMe-USB disk
       "rpi4b":
-        enabled: true
+        enabled: false
         mac: "dc:a6:32:ec:8b:49"
         rootDisk: "/dev/disk/by-id/wwn-0x3001237923792379" # a specific USB disk, by-id.
         ipv4:
