@@ -1,4 +1,4 @@
-{{- if .Values.generateJobs }}
+{{- if .Values.jobs.enabled }}
 {{- range $imageId, $image := .Values.provision.images }}
 ---
 # --> ImageId: {{ $imageId }}
@@ -153,6 +153,12 @@ spec:
         "app.kubernetes.io/instance": "{{ $.Release.Name }}"
         "app.kubernetes.io/part-of": "tinkerbell-showcase"
     spec:
+      {{- if $.Values.jobs.nodeSelector }}
+      nodeSelector:
+        {{- range $key, $value := $.Values.jobs.nodeSelector }}
+        {{ $key | quote }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: download-{{$imageId}}
           image: bash:5
