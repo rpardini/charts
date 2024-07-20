@@ -40,6 +40,12 @@ spec:
       labels:
         app: hook-image-server
     spec:
+      {{- if .Values.hookImageServer.nodeSelector }}
+      nodeSelector:
+        {{- range $key, $value := .Values.hookImageServer.nodeSelector }}
+        {{ $key | quote }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: hook-image-server
           image: nginx:1
