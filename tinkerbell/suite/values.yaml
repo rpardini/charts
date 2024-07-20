@@ -17,6 +17,7 @@
 
 hookImageServer:
   enabled: true
+  nodeSelector: null
 
 nodePort:
   hookImageServer:
