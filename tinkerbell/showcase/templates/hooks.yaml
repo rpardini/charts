@@ -1,4 +1,4 @@
-{{- if .Values.generateJobs }}
+{{- if .Values.jobs.enabled }}
 {{- range $hookId, $hook := .Values.provision.hook }}
 {{- $common := $.Values.provision.common -}}
 {{- $hook = merge $hook $common }}
@@ -79,6 +79,12 @@ spec:
       labels:
         app: download-hook
     spec:
+      {{- if $.Values.jobs.nodeSelector }}
+      nodeSelector:
+        {{- range $key, $value := $.Values.jobs.nodeSelector }}
+        {{ $key | quote }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: download-hook-{{$hookId}}
           image: bash:5
