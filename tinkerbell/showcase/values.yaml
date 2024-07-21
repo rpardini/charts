@@ -265,6 +265,18 @@ provision:
       doFixResolvConf: true
       rootfsPartitionNumber: "1"
     
+    "armbian-rpardini-odroidm1-edge-k8s":
+      enabled: false
+      arch: "aarch64"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.07.21-armsurvivors-359/Armbian-unofficial_24.07.21-armsurvivors-359_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img.xz"
+      image: "Armbian-unofficial_24.07.21-armsurvivors-359_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img"
+      conversion: "xz-qcow2-to-img-nogz"
+      doGrowPart: false # Armbian does it itself when booted
+      doUserAndSshSetup: false # Armbian does it itself when booted
+      doFixResolvConf: true
+      doInjectHegelCloudInit: true
+      rootfsPartitionNumber: "1" # rootfs is the one and only
+
     "armbian-rpardini-odroidm1-edge-uboot":
       enabled: false
       arch: "aarch64"
@@ -275,18 +287,6 @@ provision:
       doUserAndSshSetup: false # Armbian does it itself when booted
       doFixResolvConf: true
       rootfsPartitionNumber: "1"
-    
-    "armbian-rpardini-odroidm1-edge-k8s":
-      enabled: false
-      arch: "aarch64"
-      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.07.21-armsurvivors-358/Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img.qcow2.xz"
-      image: "Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img"
-      conversion: "xz-qcow2-to-img-nogz"
-      doGrowPart: false # Armbian does it itself when booted
-      doUserAndSshSetup: false # Armbian does it itself when booted
-      doFixResolvConf: true
-      doInjectHegelCloudInit: true
-      rootfsPartitionNumber: "1" # rootfs is the one and only
     
     "armbian-rpardini-t95z-cloud-edge-uboot":
       enabled: false
