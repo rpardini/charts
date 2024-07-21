@@ -29,8 +29,8 @@ provision:
   common:
     # Used together with downloadFile field in each hook;
     # Check https://github.com/rpardini/tinkerbell-hook/releases/ for updates
-    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240711-2229/"
-    hookDownloadId: "20240711-2229" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
+    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240720-1318/"
+    hookDownloadId: "20240720-1318" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
   
   # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions.
   # Important: each definition will be auto-enabled when they're referenced in an enabled device. You can force them enabled: true
@@ -268,13 +268,25 @@ provision:
     "armbian-rpardini-odroidm1-edge-uboot":
       enabled: false
       arch: "aarch64"
-      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.07.07-armsurvivors-304/Armbian-unofficial_24.07.07-armsurvivors-304_Odroidm1_bookworm_edge_6.9.8.img.xz"
-      image: "Armbian-unofficial_24.07.07-armsurvivors-304_Odroidm1_bookworm_edge_6.9.8.img.gz"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.07.21-armsurvivors-358/Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10.img.xz"
+      image: "Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10.img.gz"
       conversion: "xz-to-gz"
       doGrowPart: false # Armbian does it itself when booted
       doUserAndSshSetup: false # Armbian does it itself when booted
       doFixResolvConf: true
       rootfsPartitionNumber: "1"
+    
+    "armbian-rpardini-odroidm1-edge-k8s":
+      enabled: false
+      arch: "aarch64"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.07.21-armsurvivors-358/Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img.qcow2.xz"
+      image: "Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img.img.gz"
+      conversion: "xz-qcow2-to-img-gz"
+      doGrowPart: false # Armbian does it itself when booted
+      doUserAndSshSetup: false # Armbian does it itself when booted
+      doFixResolvConf: true
+      doInjectHegelCloudInit: true
+      rootfsPartitionNumber: "1" # rootfs is the one and only
     
     "armbian-rpardini-t95z-cloud-edge-uboot":
       enabled: false
@@ -551,9 +563,9 @@ hardware:
       mac: "fe:9b:e6:5c:7d:15"
       rootDisk: "/dev/disk/by-id/nvme-WDC_WDS100T2B0C-00PXH0_21411V443507"
       ipv4:
-        address: "192.168.99.56"
+        address: "192.168.66.124"
       hookRef: "armbian-rockchip64-edge"
-      imageRef: "armbian-rpardini-odroidm1-edge-uboot" # defined above
+      imageRef: "armbian-rpardini-odroidm1-edge-k8s" # defined above
       extraKernelCommandLine: "console=ttyS2,1500000"
     
     # Raspberry Pi 4B (bcm2711), using edk2 UEFI firmware on an SD card, and an external NVMe-USB disk
