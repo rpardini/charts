@@ -280,8 +280,8 @@ provision:
       enabled: false
       arch: "aarch64"
       downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.07.21-armsurvivors-358/Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img.qcow2.xz"
-      image: "Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img.img.gz"
-      conversion: "xz-qcow2-to-img-gz"
+      image: "Armbian-unofficial_24.07.21-armsurvivors-358_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img"
+      conversion: "xz-qcow2-to-img-nogz"
       doGrowPart: false # Armbian does it itself when booted
       doUserAndSshSetup: false # Armbian does it itself when booted
       doFixResolvConf: true

@@ -142,7 +142,11 @@ spec:
             environment:
               DEST_DISK: "{{ $rootDiskDevice }}"
               IMG_URL: "{{ $.Values.tinkerbell.imagesURL }}/{{ $imageObj.image }}"
-              COMPRESSED: true
+              {{- if not (regexMatch "-nogz$" $imageObj.conversion) }}
+              COMPRESSED: true # because {{ $imageObj.conversion }}
+              {{- else }}
+              COMPRESSED: false # cos {{ $imageObj.conversion }}
+              {{- end }}
 
           {{- if $imageObj.doGrowPart }}
           - name: "grow-partition-{{ $deviceId }}"
