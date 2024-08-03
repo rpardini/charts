@@ -11,7 +11,7 @@ tinkerbell:
   insecureRegistries: # hit insecure registries over HTTP
     enabled: false # enable and set comma-sep list below
     registries: "" # (string) comma-separated list of insecure registries (will be accessed over HTTP if listed here)
-  tinkWorkerImage: "quay.io/tinkerbellrpardini/tink-worker:v0.11.0-alpha-rpardini3" # (string) Docker image to use for tink-worker, complete with tag
+  tinkWorkerImage: "quay.io/tinkerbellrpardini/tink-worker:v0.11.0-alpha-rpardini4" # (string) Docker image to use for tink-worker, complete with tag
   tinkWorkerImagePrefix: "" # prefix to add to tinkWorkerImage, for easy pass-through mirroring it
 
 actions:
@@ -31,8 +31,8 @@ provision:
   common:
     # Used together with downloadFile field in each hook;
     # Check https://github.com/rpardini/tinkerbell-hook/releases/ for updates
-    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240720-1318/"
-    hookDownloadId: "20240720-1318" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
+    hookDownloadBaseURL: "https://github.com/rpardini/tinkerbell-hook/releases/download/20240803-1714/"
+    hookDownloadId: "20240803-1714" # If the ID changes, all hooks will be re-downloaded. Can't contain slashes or spaces
   
   # Define one key per hook built to be downloaded and made available. Those _must_ match the hardware definitions.
   # Important: each definition will be auto-enabled when they're referenced in an enabled device. You can force them enabled: true
