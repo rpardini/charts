@@ -118,7 +118,7 @@ syslog:
   port: 514
 
 # The Tink Worker image passed to OSIE as a kernel arg for launching.
-tinkWorkerImage: quay.io/tinkerbellrpardini/tink-worker:v0.11.0-alpha-rpardini3
+tinkWorkerImage: quay.io/tinkerbellrpardini/tink-worker:v0.11.0-alpha-rpardini4
 
 
 # Additional arguments to pass to the smee container. Some arguments are already defined - refer
