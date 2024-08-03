@@ -5,7 +5,7 @@ deploy: true
 name: smee
 
 # The image used to launch the container.
-image: quay.io/tinkerbell/smee:v0.15.1
+image: quay.io/tinkerbellrpardini/smee:v0.15.1-rpardini1
 imagePullPolicy: IfNotPresent
 
 # The number of pods to run.
@@ -125,7 +125,7 @@ syslog:
   port: 514
 
 # The Tink Worker image passed to OSIE as a kernel arg for launching.
-tinkWorkerImage: quay.io/tinkerbell/tink-worker:v0.12.1
+tinkWorkerImage: quay.io/tinkerbellrpardini/tink-worker:v0.12.1-rpardini1
 
 # Additional arguments to pass to the smee container. Some arguments are already defined - refer
 # to the deployment.yaml template for details.
