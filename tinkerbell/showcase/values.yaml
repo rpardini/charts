@@ -22,6 +22,8 @@ jobs:
   enabled: false # false to completely skip generating jobs
   nodeSelector: null # or an object with keys and values for NodeSelector
 
+forceNamespace: null # or a string to force all resources to be created in a specific namespace
+
 # Generates download jobs and configs for easy show-off'ing of Tinkerbell on diverse hardware
 provision:
   # @TODO: many simultaneous download jobs can drive an SD-card/low-bandwidth cluster to its knees. Consider a single download job for all
