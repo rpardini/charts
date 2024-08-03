@@ -57,6 +57,9 @@ apiVersion: "tinkerbell.org/v1alpha1"
 kind: Hardware
 metadata:
   name: "{{ $deviceId }}-hardware"
+  {{- if $.Values.forceNamespace }}
+  namespace: "{{ $.Values.forceNamespace }}"
+  {{- end }}
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
     "app.kubernetes.io/part-of": "tinkerbell-showcase"
@@ -119,6 +122,9 @@ apiVersion: "tinkerbell.org/v1alpha1"
 kind: Template
 metadata:
   name: "{{ $deviceId }}-template"
+  {{- if $.Values.forceNamespace }}
+  namespace: "{{ $.Values.forceNamespace }}"
+  {{- end }}
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
     "app.kubernetes.io/part-of": "tinkerbell-showcase"
@@ -336,6 +342,9 @@ apiVersion: "tinkerbell.org/v1alpha1"
 kind: Workflow
 metadata:
   name: "{{ $deviceId }}-workflow"
+  {{- if $.Values.forceNamespace }}
+  namespace: "{{ $.Values.forceNamespace }}"
+  {{- end }}
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
     "app.kubernetes.io/part-of": "tinkerbell-showcase"
