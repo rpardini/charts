@@ -33,7 +33,7 @@
   # rootDiskRootfsPartitionNumber is {{$rootDiskRootfsPartitionNumber}}
 {{- $rootDiskRootfsPartitionDevice := "unknown" }}
 {{- $espPartitionDevice := "unknown" }}
-{{- $espPartitionNumber := "1" }}
+{{- $espPartitionNumber := printf "%s" ($imageObj.espPartitionNumber | default 1 ) }}
 
 {{- if hasPrefix "/dev/disk/" $rootDiskDevice }}
   # YES! {{$rootDiskDevice}} begins with /dev/disk
@@ -309,6 +309,44 @@ spec:
               CHROOT: y
               DEFAULT_INTERPRETER: "/bin/bash -c"
               CMD_LINE: "set -x; mount; lsblk; blkid; mount -o remount,rw /sys; mount -t efivarfs none /sys/firmware/efi/efivars; mount '{{ $espPartitionDevice }}' /boot; mount; rm -rfv /boot/ubuntu /boot/loader /boot/EFI; mkdir -pv /boot/EFI; update-initramfs -k all -c; echo 'GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE_LINUX_DEFAULT} {{$mergedDevice.extraKernelCommandLine}}\"' > /etc/default/grub.d/60-provisioned.cfg; cat /etc/default/grub.d/60-provisioned.cfg; mv -v /etc/os-release /etc/os-release.hold; echo 'NAME={{$mergedDevice.imageRef}}' > /etc/os-release; grub-install --efi-directory /boot '--bootloader-id={{$mergedDevice.imageRef}}'; update-grub; tree /boot; cat /boot/grub/grub.cfg; efibootmgr --verbose; umount /sys/firmware/efi/efivars; umount /boot; mv -v /etc/os-release.hold /etc/os-release; sync"
+          {{- end }}
+
+          {{- if ($imageObj.doRestoreGRUBNormalcySeparateESP )  }}
+          - name: "restore-grub-normalcy-{{ $deviceId }}"
+            image: {{ $.Values.actions.repository }}/cexec:{{ $.Values.actions.version }}
+            timeout: 90
+            environment:
+              BLOCK_DEVICE: {{$rootDiskRootfsPartitionDevice}}
+              FS_TYPE: ext4
+              CHROOT: y
+              DEFAULT_INTERPRETER: "/bin/bash -c"
+              CMD_LINE: |
+                set -x
+                set -e
+                mount
+                lsblk || true
+                blkid || true
+                mount -o remount,rw /sys
+                mount -t efivarfs none /sys/firmware/efi/efivars
+                mount '{{ $espPartitionDevice }}' /boot/efi
+                mount
+                rm -rfv /boot/efi/ubuntu /boot/efi/loader /boot/efi/EFI
+                mkdir -pv /boot/efi/EFI
+                update-initramfs -k all -c
+                echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} {{$mergedDevice.extraKernelCommandLine}}" # Added "{{$mergedDevice.extraKernelCommandLine}}" by tinkerbell action' > /etc/default/grub.d/99-provisioned.cfg
+                ls -lat /etc/default/grub.d
+                cat /etc/default/grub.d/99-provisioned.cfg
+                mv -v /etc/os-release /etc/os-release.hold
+                echo 'NAME={{$mergedDevice.imageRef}}' > /etc/os-release
+                grub-install --efi-directory /boot/efi '--bootloader-id={{$mergedDevice.imageRef}}'
+                update-grub || { echo 'update-grub failed! showing /boot/grub/grub.cfg.new'; cat /boot/grub/grub.cfg.new || true; echo 'update-grub failed!'; exit 66; }
+                tree /boot || true
+                cat /boot/grub/grub.cfg
+                efibootmgr --verbose || true
+                umount /sys/firmware/efi/efivars
+                umount /boot/efi
+                mv -v /etc/os-release.hold /etc/os-release
+                sync
           {{- end }}
 
           {{- if eq $hookObj.bootMode "kexec" }}
