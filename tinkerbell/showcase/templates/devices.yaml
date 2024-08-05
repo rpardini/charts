@@ -63,6 +63,9 @@ metadata:
   labels:
     "app.kubernetes.io/instance": "{{ $.Release.Name }}"
     "app.kubernetes.io/part-of": "tinkerbell-showcase"
+    "tinkerbell.showcase/deviceId": "{{ $deviceId }}"
+    "tinkerbell.showcase/imageRef": "{{ $mergedDevice.imageRef }}"
+    "tinkerbell.showcase/hookRef": "{{ $mergedDevice.hookRef }}"
 spec:
   disks:
     - device: "{{ $rootDiskDevice }}"
