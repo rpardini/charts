@@ -376,6 +376,7 @@ spec:
               - /var/run/docker.sock:/var/run/docker.sock
           {{- end }}
 ---
+{{- if $.Values.workflows.enabled }}
 apiVersion: "tinkerbell.org/v1alpha1"
 kind: Workflow
 metadata:
@@ -391,5 +392,6 @@ spec:
   hardwareRef: "{{ $deviceId }}-hardware"
   hardwareMap:
     device_1: "{{ $dev.mac }}"
+{{- end }}
 {{- end }}
 {{- end }}
