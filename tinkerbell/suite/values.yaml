@@ -129,6 +129,7 @@ showcase:
         conversion: "xz-qcow2-to-img-gz"
         doGrowPart: false # Armbian does it itself when booted
         doUserAndSshSetup: false # Armbian does it itself when booted
+        doInjectHegelCloudInit: true
         doFixResolvConf: true
         rootfsPartitionNumber: "3" #  1 is BIOS GRUB partition thing, 2 is ESP, 3 rootfs
         espPartitionNumber: "2"
