@@ -22,6 +22,9 @@ jobs:
   enabled: false # false to completely skip generating jobs
   nodeSelector: null # or an object with keys and values for NodeSelector
 
+workflows:
+  enabled: true # false to completely skip generating Tinkerbell Workflow CRs; Hardware and Templates are still generated
+
 forceNamespace: null # or a string to force all resources to be created in a specific namespace
 
 # Generates download jobs and configs for easy show-off'ing of Tinkerbell on diverse hardware
