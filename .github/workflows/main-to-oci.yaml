@@ -1,0 +1,80 @@
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - rework
+
+name: Publish Helm OCI from main
+
+env:
+  ver: "v0.5.0-rp-auto-${{ github.run_number }}"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: install helm
+        uses: Azure/setup-helm@v3.3
+        with:
+          version: v3.9.4
+
+      - name: login to ghcr.io
+        run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io/rpardini --username ${{ github.actor }} --password-stdin
+
+      - name: create helm chart package for stack ${{ env.ver }}
+        run: helm package tinkerbell/stack --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for showcase ${{ env.ver }}
+        run: helm package tinkerbell/showcase --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for suite ${{ env.ver }}
+        run: helm package tinkerbell/suite --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for tink ${{ env.ver }}
+        run: helm package tinkerbell/tink --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for rufio ${{ env.ver }}
+        run: helm package tinkerbell/rufio --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for smee ${{ env.ver }}
+        run: helm package tinkerbell/smee --dependency-update --version ${ver:1}
+
+      - name: create helm chart package for hegel ${{ env.ver }}
+        run: helm package tinkerbell/hegel --dependency-update --version ${ver:1}
+
+      - name: publish stack chart to ghcr.io
+        run: helm push stack-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish showcase chart to ghcr.io
+        run: helm push showcase-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish suite chart to ghcr.io
+        run: helm push suite-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish tink chart to ghcr.io
+        run: helm push tink-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish rufio chart to ghcr.io
+        run: helm push rufio-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish smee chart to ghcr.io
+        run: helm push smee-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: publish hegel chart to ghcr.io
+        run: helm push hegel-${ver:1}.tgz oci://ghcr.io/rpardini/tinkerbell-charts
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.ver }}
+          release_name: ${{ env.ver }}
+          body: "Automatic release ${{ env.ver }}"
+          draft: false
+          prerelease: true
