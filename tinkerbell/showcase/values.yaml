@@ -247,6 +247,20 @@ provision:
       espPartitionNumber: "2"
       doRestoreGRUBNormalcySeparateESP: true
     
+    "armbian-uefi-x86-ddk-cloud-k8s":
+      enabled: false
+      arch: "x86_64"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.08.05-armsurvivors-390/Armbian-unofficial_24.08.05-armsurvivors-390_Uefi-x86_bookworm_ddk_generic-metadata-cloud-k8s-1.30.img.qcow2.xz"
+      image: "Armbian-unofficial_24.08.05-armsurvivors-390_Uefi-x86_bookworm_ddk_generic-metadata-cloud-k8s-1.30.img.gz"
+      conversion: "xz-qcow2-to-img-gz"
+      doGrowPart: false # Armbian does it itself when booted
+      doUserAndSshSetup: false # Armbian does it itself when booted
+      doFixResolvConf: true
+      doInjectHegelCloudInit: true
+      rootfsPartitionNumber: "3" #  1 is BIOS GRUB partition thing, 2 is ESP, 3 rootfs
+      espPartitionNumber: "2"
+      doRestoreGRUBNormalcySeparateESP: true
+
     "armbian-rpardini-rockpro64-edge-uboot":
       enabled: false
       arch: "aarch64"
@@ -274,6 +288,18 @@ provision:
       arch: "aarch64"
       downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.07.21-armsurvivors-359/Armbian-unofficial_24.07.21-armsurvivors-359_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img.xz"
       image: "Armbian-unofficial_24.07.21-armsurvivors-359_Odroidm1_bookworm_edge_6.9.10-metadata-cloud-k8s-1.30.img"
+      conversion: "xz-qcow2-to-img-nogz"
+      doGrowPart: false # Armbian does it itself when booted
+      doUserAndSshSetup: false # Armbian does it itself when booted
+      doFixResolvConf: true
+      doInjectHegelCloudInit: true
+      rootfsPartitionNumber: "1" # rootfs is the one and only
+
+    "armbian-rpardini-odroidm1-curr-k8s":
+      enabled: false
+      arch: "aarch64"
+      downloadURL: "https://github.com/armsurvivors/armbian-release/releases/download/24.08.05-armsurvivors-388/Armbian-unofficial_24.08.05-armsurvivors-388_Odroidm1_bookworm_current_6.6.44-metadata-cloud-k8s-1.30.img.xz"
+      image: "Armbian-unofficial_24.08.05-armsurvivors-388_Odroidm1_bookworm_current_6.6.44-metadata-cloud-k8s-1.30.img"
       conversion: "xz-qcow2-to-img-nogz"
       doGrowPart: false # Armbian does it itself when booted
       doUserAndSshSetup: false # Armbian does it itself when booted
