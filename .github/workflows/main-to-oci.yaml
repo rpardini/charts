@@ -8,7 +8,7 @@ on:
 name: Publish Helm OCI from main
 
 env:
-  ver: "v0.5.0-rp-auto-${{ github.run_number }}"
+  ver: "v0.6.1-rp-auto-${{ github.run_number }}"
 
 jobs:
   release:
