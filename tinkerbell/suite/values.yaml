@@ -40,6 +40,9 @@ tink:
 showcase:
   enabled: true
 
+  workflows:
+    enabled: false # false to completely skip generating Tinkerbell Workflow CRs; Hardware and Templates are still generated
+
   jobs:
     enabled: true  # false to completely skip generating jobs
     nodeSelector:
@@ -75,7 +78,7 @@ showcase:
         mac: "fe:9b:e6:5c:7d:15"
         rootDisk: "/dev/disk/by-id/nvme-WDC_WDS100T2B0C-00PXH0_21411V443507"
         ipv4:
-          address: "192.168.66.124" 
+          address: "192.168.66.124"
         hookRef: "armbian-rockchip64-edge"
         imageRef: "armbian-rpardini-odroidm1-curr-k8s" # defined above
         extraKernelCommandLine: "console=ttyS2,1500000"
