@@ -76,6 +76,7 @@ spec:
             - -tftp-timeout={{ .Values.tftp.timeout }}
             - -tftp-port={{ .Values.tftp.port }}
             - -syslog-port={{ .Values.syslog.port }}
+            {{- if not .Values.hostNetwork }}
             - -http-addr={{ .Values.http.ip }}
             - -syslog-addr={{ .Values.syslog.ip }}
             - -tftp-addr={{ .Values.tftp.ip }}
@@ -84,6 +85,7 @@ spec:
             - -dhcp-syslog-ip={{ .Values.dhcp.syslogIp }}
             - -dhcp-tftp-ip={{ .Values.dhcp.tftpIp }}
             - -dhcp-ip-for-packet={{ .Values.dhcp.ipForPacket }}
+            {{- end }}
             - -iso-enabled={{ .Values.iso.enabled }}
             - -iso-url={{ .Values.iso.url }}
             - -iso-magic-string={{ .Values.iso.magicString }}
