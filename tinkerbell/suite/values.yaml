@@ -80,7 +80,7 @@ showcase:
         ipv4:
           address: "192.168.66.124"
         hookRef: "armbian-rockchip64-edge"
-        imageRef: "armbian-rpardini-odroidm1-curr-k8s" # defined above
+        imageRef: "armbian-rpardini-odroidm1-edge-k8s"
         extraKernelCommandLine: "console=ttyS2,1500000"
         userData: |
           #include https://cloud-init.pardini.net/rpardini/oldskool-rpardini/master/odroidm1_tinkerbell_from_hegel
