@@ -24,7 +24,7 @@
 {{- if not $imageObj }}{{- (printf "Device '%s', imageRef '%s': %s" $deviceId $mergedDevice.imageRef "imageRef not found") }}{{- end }}
   # Check sanity of arch across device / image / hook - they all must match
   # Device arch: {{$dev.arch}} Image arch: {{$imageObj.arch}} Hook arch: {{$hookObj.arch}}
-{{- if ne $imageObj.arch $hookObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "image and hook arch mismatch") }}{{- end }}
+{{- if ne $imageObj.arch $hookObj.arch }}{{- fail (printf "Device '%s' (imageRef '%s'): '%s'" $deviceId $mergedDevice.imageRef "image and hook arch mismatch") }}{{- end }}
 {{- if ne $dev.arch $imageObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "device and image arch mismatch") }}{{- end }}
 {{- if ne $dev.arch $hookObj.arch }}{{- fail (printf "Device '%s': '%s'" $deviceId "device and hook arch mismatch") }}{{- end }}
 {{- $rootDiskDevice := required (printf "Device '%s' - %s" $deviceId "rootDisk is required") $mergedDevice.rootDisk }}
