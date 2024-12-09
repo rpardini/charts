@@ -25,15 +25,31 @@ smee:
   deployment:
     strategy:
       type: Recreate # stop old pod before creating a new one
+  rbac:
+    type: ClusterRole # for multi-namespace
+    name: smee-cluster-role
+    bindingName: smee-cluster-rolebinding
 
 hegel:
   trustedProxies: [ "0.0.0.0/0" ] # Trust _all_ proxies, insecure
+  rbac:
+    type: ClusterRole # for multi-namespace
+    name: hegel-cluster-role
+    bindingName: hegel-cluster-rolebinding
 
 tink:
   controller:
     imagePullPolicy: Always
+    rbac:
+      type: ClusterRole # for multi-namespace
+      name: tink-controller-cluster-role
+      bindingName: tink-controller-cluster-rolebinding
   server:
     imagePullPolicy: Always
+    rbac:
+      type: ClusterRole # for multi-namespace
+      name: tink-server-cluster-role
+      bindingName: tink-server-cluster-rolebinding
 
 
 #### SHOWCASE. Needs to know coordinates to where Hegel / Smee (syslog, etc) and HookOS vmlinux and OS images are.
