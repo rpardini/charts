@@ -17,6 +17,7 @@ nodePort:
 smee:
   additionalArgs: [ "--dhcp-mode=proxy" ] # DHCP proxy mode!
   hostNetwork: true # no proxies, loadbalancers, or anything: it just runs as if directly on the k8s host.
+  #additionalEnv: [ { name: "SMEE_PUBLIC_IP_INTERFACE", value: "lan" } ] # auto-detect IP's on this interface
   logLevel: "debug"
   trustedProxies: [ "0.0.0.0/0" ] # Trust _all_ proxies, insecure
   imagePullPolicy: Always # I re-push it there sometimes
