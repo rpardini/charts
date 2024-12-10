@@ -11,7 +11,7 @@ tinkerbell:
   insecureRegistries: # hit insecure registries over HTTP
     enabled: false # enable and set comma-sep list below
     registries: "" # (string) comma-separated list of insecure registries (will be accessed over HTTP if listed here)
-  tinkWorkerImage: "quay.io/tinkerbellrpardini/tink-worker:v0.11.0-alpha-rpardini4" # (string) Docker image to use for tink-worker, complete with tag
+  tinkWorkerImage: "quay.io/tinkerbellrpardini/tink-worker:v0.12.1-rpardini1" # (string) Docker image to use for tink-worker, complete with tag
   tinkWorkerImagePrefix: "" # prefix to add to tinkWorkerImage, for easy pass-through mirroring it
 
 actions:
